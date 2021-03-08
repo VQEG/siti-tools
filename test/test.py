@@ -31,8 +31,8 @@ import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from siti_tools.file import read_container
-from siti_tools.siti import si, ti
+from siti_tools.file import read_container  # noqa: E402
+from siti_tools.siti import si, ti  # noqa: E402
 
 
 def pytest_generate_tests(metafunc):
