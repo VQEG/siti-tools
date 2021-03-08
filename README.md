@@ -2,10 +2,13 @@
 
 SI/TI calculation tools.
 
+Calculate spatial information (SI) and temporal information (TI) according to ITU-T P.910.
+
 Contents:
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [What is SI/TI?](#what-is-si-ti)
 - [Usage](#usage)
 - [Documentation](#documentation)
 - [Acknowledgements](#acknowledgements)
@@ -38,13 +41,40 @@ Alternatively, clone this repository and then:
 
     pip3 install --user .
 
+## What is SI/TI?
+
+The following info is given about SI / TI in ITU-T Recommendation P.910 ("Subjective video quality assessment methods for multimedia applications"):
+
+### Spatial Information
+
+> The spatial perceptual information (SI) is based on the Sobel filter. Each video frame (luminance plane) at time n (Fn) is first filtered with the Sobel filter [Sobel(Fn)]. The standard deviation over the pixels (stdspace) in each Sobel-filtered frame is then computed. This operation is repeated for each frame in the video sequence and results in a time series of spatial information of the scene. The maximum value in the time series (maxtime) is chosen to represent the spatial information content of the scene. This process can be represented in equation form as:
+
+> ![](http://i.imgur.com/zRXcVJO.png)
+
+### Temporal information
+
+> The temporal perceptual information (TI) is based upon the motion difference feature, Mn(i, j), which is the difference between the pixel values (of the luminance plane) at the same location in space but at successive times or frames. Mn(i, j) as a function of time (n) is defined as:
+
+> ![](http://i.imgur.com/MRsJtdT.png)
+
+> here Fn(i, j) is the pixel at the ith row and jth column of nth frame in time.
+The measure of temporal information (TI) is computed as the maximum over time (maxtime) of the standard deviation over space (stdspace) of Mn(i, j) over all i and j.
+
+> <img src="https://i.imgur.com/XAnKWJw.png" height="19">
+
+> More motion in adjacent frames will result in higher values of TI
 ## Usage
 
-The tools expose the following:
+The tools expose the following via an API:
 
 - two main functions to calculate SI and TI given an array of frame data (`si` and `ti`)
 - a helper function to calculate SI and TI together (`calculate_si_ti`)
 - helper functions for reading files (`read_container`, `read_file`)
+
+Read on to get some examples. If you need a command line version, check out:
+
+- [slhck/siti](https://github.com/slhck/siti) (Python CLI version)
+- [TelecommunicationTelemediaAssessment/SITI](https://github.com/Telecommunication-Telemedia-Assessment/SITI) (OpenCV and Python versions)
 
 ### Combined Calculation
 
