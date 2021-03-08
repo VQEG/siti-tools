@@ -1,5 +1,7 @@
 # siti-tools
 
+[![Python package](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/actions/workflows/python-package.yml/badge.svg)](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/actions/workflows/python-package.yml)
+
 SI/TI calculation tools.
 
 Calculate spatial information (SI) and temporal information (TI) according to ITU-T P.910.
