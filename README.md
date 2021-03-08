@@ -17,7 +17,7 @@ Contents:
 
 ## Requirements
 
-- Python 3.5 or higher
+- Python 3.7 or higher
 - FFmpeg libraries (to run `pyav`)
 
 Under Ubuntu, to get ffmpeg libraries:
