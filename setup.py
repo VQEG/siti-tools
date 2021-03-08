@@ -29,7 +29,7 @@ setup(
     author="Werner Robitza",
     author_email="werner.robitza@gmail.com",
     url="https://github.com/Telecommunication-Telemedia-Assessment/siti-tools",
-    packages=["siti"],
+    packages=["siti_tools"],
     include_package_data=True,
     install_requires=["scipy", "numpy", "av"],
     license="MIT",
