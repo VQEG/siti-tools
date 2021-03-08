@@ -54,7 +54,31 @@
                 
                         <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+            <div class="codehilite"><pre><span></span><span class="c1"># This file is part of siti_tools</span>
+<span class="c1">#</span>
+<span class="c1"># MIT License</span>
+<span class="c1">#</span>
+<span class="c1"># siti_tools, Copyright (c) 2021 Werner Robitza</span>
+<span class="c1">#</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1">#</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in all</span>
+<span class="c1"># copies or substantial portions of the Software.</span>
+<span class="c1">#</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1"># SOFTWARE.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
@@ -105,9 +129,9 @@
 
 <span class="k">def</span> <span class="nf">calculate_si_ti</span><span class="p">(</span>
     <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">width</span><span class="p">,</span>
-    <span class="n">height</span><span class="p">,</span>
-    <span class="n">file_format</span><span class="p">:</span> <span class="n">FileFormat</span><span class="p">,</span>
+    <span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">file_format</span><span class="o">=</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">YUV420P</span><span class="p">,</span>
     <span class="n">num_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">full_range</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
 <span class="p">):</span>
@@ -118,8 +142,9 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        input_file (str): path to input file</span>
-<span class="sd">        width (int): frame width in pixels</span>
-<span class="sd">        height (int): frame height in pixels</span>
+<span class="sd">        width (int): frame width in pixels. Defaults to 0.</span>
+<span class="sd">        height (int): frame height in pixels. Defaults to 0.</span>
+<span class="sd">        file_format (FileFormat): file format for raw files. Defaults to YUV420P.</span>
 <span class="sd">        num_frames (int, optional): number of frames to calculate. Defaults to 0 (calculate all).</span>
 <span class="sd">        full_range (bool, optional): whether to assume full range for input file. Defaults to False.</span>
 
@@ -272,9 +297,9 @@
             <span class="def">def</span>
             <span class="name">calculate_si_ti</span><span class="signature">(
     input_file: str,
-    width,
-    height,
-    file_format: <a href="file.html#FileFormat">siti_tools.file.FileFormat</a>,
+    width=0,
+    height=0,
+    file_format=&lt;FileFormat.YUV420P: 1&gt;,
     num_frames=0,
     full_range=False
 )</span>:
@@ -284,9 +309,9 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">calculate_si_ti</span><span class="p">(</span>
     <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">width</span><span class="p">,</span>
-    <span class="n">height</span><span class="p">,</span>
-    <span class="n">file_format</span><span class="p">:</span> <span class="n">FileFormat</span><span class="p">,</span>
+    <span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">file_format</span><span class="o">=</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">YUV420P</span><span class="p">,</span>
     <span class="n">num_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">full_range</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
 <span class="p">):</span>
@@ -297,8 +322,9 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        input_file (str): path to input file</span>
-<span class="sd">        width (int): frame width in pixels</span>
-<span class="sd">        height (int): frame height in pixels</span>
+<span class="sd">        width (int): frame width in pixels. Defaults to 0.</span>
+<span class="sd">        height (int): frame height in pixels. Defaults to 0.</span>
+<span class="sd">        file_format (FileFormat): file format for raw files. Defaults to YUV420P.</span>
 <span class="sd">        num_frames (int, optional): number of frames to calculate. Defaults to 0 (calculate all).</span>
 <span class="sd">        full_range (bool, optional): whether to assume full range for input file. Defaults to False.</span>
 
@@ -348,8 +374,9 @@ always be 0. The integer will be equal to the number of frames read.</p>
 
 <ul>
 <li><strong>input_file (str):</strong>  path to input file</li>
-<li><strong>width (int):</strong>  frame width in pixels</li>
-<li><strong>height (int):</strong>  frame height in pixels</li>
+<li><strong>width (int):</strong>  frame width in pixels. Defaults to 0.</li>
+<li><strong>height (int):</strong>  frame height in pixels. Defaults to 0.</li>
+<li><strong>file_format (FileFormat):</strong>  file format for raw files. Defaults to YUV420P.</li>
 <li><strong>num_frames (int, optional):</strong>  number of frames to calculate. Defaults to 0 (calculate all).</li>
 <li><strong>full_range (bool, optional):</strong>  whether to assume full range for input file. Defaults to False.</li>
 </ul>
