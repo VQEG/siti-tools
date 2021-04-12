@@ -27,6 +27,7 @@
 import sys
 import os
 from typing import Dict, List
+from numpy import NaN
 import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -38,6 +39,7 @@ from siti_tools.siti import si, ti  # noqa: E402
 def pytest_generate_tests(metafunc):
     idlist = []
     argvalues = []
+    argnames = []
     for scenario in metafunc.cls.scenarios:
         idlist.append(scenario[0])
         items = scenario[1].items()
@@ -49,6 +51,7 @@ def pytest_generate_tests(metafunc):
 class TestSiti:
     scenarios = [
         ("basic testing", {"input_file": "test.mp4", "ground_truth": "test.csv"}),
+        ("foreman", {"input_file": "foreman_cif.y4m", "ground_truth": "foreman_cif.csv"}),
         # add further tests here
     ]
 
@@ -63,12 +66,14 @@ class TestSiti:
                     continue
                 line = line.strip()
                 si, ti, _ = line.split(",")
+                if ti == "" or ti == "None":
+                    ti = NaN
                 ret.append({"si": float(si), "ti": float(ti)})
         return ret
 
     def test_siti(self, input_file: str, ground_truth: str):
-        input_file_path = os.path.join(os.path.dirname(__file__), input_file)
-        ground_truth_path = os.path.join(os.path.dirname(__file__), ground_truth)
+        input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
+        ground_truth_path = os.path.join(os.path.dirname(__file__), "ground_truth", ground_truth)
 
         frame_generator = read_container(input_file_path)
         gt = TestSiti._read_ground_truth(ground_truth_path)
