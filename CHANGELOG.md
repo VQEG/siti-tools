@@ -1,6 +1,13 @@
 # Changelog
 
 
+## v0.1.1 (2021-05-13)
+
+* Add warning for full range passed to limited range function, fixes #2.
+
+* Add new test video, improve test harness.
+
+
 ## v0.1.0 (2021-03-08)
 
 * Add status badge.
