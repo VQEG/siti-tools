@@ -53,7 +53,7 @@ def read_yuv(
         NotImplementedError: If a wrong file format is chosen
 
     Yields:
-        np.ndarray: The frame data
+        np.ndarray: The frame data, integer
     """
     # TODO: add support for other YUV types
     if file_format != FileFormat.YUV420P:
@@ -69,7 +69,7 @@ def read_yuv(
             y_data = (
                 np.frombuffer(in_f.read((width * height)), dtype=np.uint8)
                 .reshape((height, width))
-                .astype("float32")
+                .astype("int")
             )
 
             # read U and V components, but skip
@@ -79,12 +79,12 @@ def read_yuv(
             # u_data = (
             #     np.frombuffer(in_f.read(((width // 2) * (height // 2))), dtype=np.uint8)
             #     .reshape((height // 2, width // 2))
-            #     .astype("float32")
+            #     .astype("int")
             # )
             # v_data = (
             #     np.frombuffer(in_f.read(((width // 2) * (height // 2))), dtype=np.uint8)
             #     .reshape((height // 2, width // 2))
-            #     .astype("float32")
+            #     .astype("int")
             # )
 
             if not full_range:
@@ -107,6 +107,6 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
         frame_data = (
             frame.to_ndarray(format="gray")
             .reshape(frame.height, frame.width)
-            .astype("float32")
+            .astype("int")
         )
         yield frame_data
