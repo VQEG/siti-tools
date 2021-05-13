@@ -88,6 +88,9 @@ def read_yuv(
             # )
 
             if not full_range:
+                # check if we don't actually exceed minimum range
+                if np.min(y_data) < 16 or np.max(y_data) > 235:
+                    raise RuntimeError("Input YUV appears to be full range, specify full_range=True!")
                 # convert to grey by assumng limited range input
                 y_data = np.around((y_data - 16) / ((235 - 16) / 255))
 
