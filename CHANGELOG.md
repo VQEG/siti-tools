@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.1.2 (2021-05-14)
+
+* Add documentation for method.
+
+* Fix link.
+
+* Update README.md.
+
+* Update README.md.
+
+* Output frame data as integers.
+
+
 ## v0.1.1 (2021-05-13)
 
 * Add warning for full range passed to limited range function, fixes #2.
