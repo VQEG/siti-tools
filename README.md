@@ -13,6 +13,7 @@ Contents:
 - [What is SI/TI?](#what-is-si-ti)
 - [Usage](#usage)
 - [Documentation](#documentation)
+- [Related Projects](#related-projects)
 - [Acknowledgements](#acknowledgements)
 - [Testing](#testing)
 - [License](#license)
