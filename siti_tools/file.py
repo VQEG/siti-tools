@@ -98,6 +98,17 @@ def read_yuv(
 
 
 def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
+    """Read a multiplexed file via ffmpeg and yield the per-frame Y data
+
+    Args:
+        input_file (str): Input file path
+
+    Raises:
+        RuntimeError: If no video streams were found
+
+    Yields:
+        np.ndarray: The frame data, integer
+    """
     container = av.open(input_file)
 
     if not len(container.streams.video):
