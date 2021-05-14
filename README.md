@@ -116,7 +116,7 @@ The `read_container` function returns each frame individually and the loop will 
 
 ## Documentation
 
-To read the API documentation, head to https://telecommunication-telemedia-assessment.github.io/siti_tools.
+To read the API documentation, head to https://telecommunication-telemedia-assessment.github.io/siti-tools/.
 
 ## Acknowledgements
 
