@@ -65,18 +65,20 @@ The measure of temporal information (TI) is computed as the maximum over time (m
 > <img src="https://i.imgur.com/XAnKWJw.png" height="19">
 
 > More motion in adjacent frames will result in higher values of TI
-## Usage
+
+## Command Line Usage
+
+If you need a command line version that uses `siti-tools` in the background, check out [slhck/siti](https://github.com/slhck/siti).
+
+This repository will gain a command line interface once it gets more features.
+
+## API Usage
 
 The tools expose the following via an API:
 
 - two main functions to calculate SI and TI given an array of frame data (`si` and `ti`)
 - a helper function to calculate SI and TI together (`calculate_si_ti`)
 - helper functions for reading files (`read_container`, `read_file`)
-
-Read on to get some examples. If you need a command line version, check out:
-
-- [slhck/siti](https://github.com/slhck/siti) (Python CLI version)
-- [TelecommunicationTelemediaAssessment/SITI](https://github.com/Telecommunication-Telemedia-Assessment/SITI) (OpenCV and Python versions)
 
 ### Combined Calculation
 
@@ -119,7 +121,14 @@ To read the API documentation, head to https://telecommunication-telemedia-asses
 
 If you use this software in your research, please include link to this repository.
 
+## Related Projects
+
+- [TelecommunicationTelemediaAssessment/SITI](https://github.com/Telecommunication-Telemedia-Assessment/SITI): Legacy calculations of OpenCV and Python version of SI/TI, values may not necessarily correspond.
+- [NabajeetBarman/SI-TI](https://github.com/NabajeetBarman/SI-TI): MATLAB version of SI/TI calculation, values verified against this repository.
+
 ## Testing
+
+This repo provides a set of test sequences with expected output values that you can verify against.
 
 Install `pytest`:
 
