@@ -118,7 +118,7 @@
 <span class="sd">        NotImplementedError: If a wrong file format is chosen</span>
 
 <span class="sd">    Yields:</span>
-<span class="sd">        np.ndarray: The frame data</span>
+<span class="sd">        np.ndarray: The frame data, integer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO: add support for other YUV types</span>
     <span class="k">if</span> <span class="n">file_format</span> <span class="o">!=</span> <span class="n">FileFormat</span><span class="o">.</span><span class="n">YUV420P</span><span class="p">:</span>
@@ -134,7 +134,7 @@
             <span class="n">y_data</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">in_f</span><span class="o">.</span><span class="n">read</span><span class="p">((</span><span class="n">width</span> <span class="o">*</span> <span class="n">height</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
-                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
             <span class="p">)</span>
 
             <span class="c1"># read U and V components, but skip</span>
@@ -144,15 +144,18 @@
             <span class="c1"># u_data = (</span>
             <span class="c1">#     np.frombuffer(in_f.read(((width // 2) * (height // 2))), dtype=np.uint8)</span>
             <span class="c1">#     .reshape((height // 2, width // 2))</span>
-            <span class="c1">#     .astype(&quot;float32&quot;)</span>
+            <span class="c1">#     .astype(&quot;int&quot;)</span>
             <span class="c1"># )</span>
             <span class="c1"># v_data = (</span>
             <span class="c1">#     np.frombuffer(in_f.read(((width // 2) * (height // 2))), dtype=np.uint8)</span>
             <span class="c1">#     .reshape((height // 2, width // 2))</span>
-            <span class="c1">#     .astype(&quot;float32&quot;)</span>
+            <span class="c1">#     .astype(&quot;int&quot;)</span>
             <span class="c1"># )</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">full_range</span><span class="p">:</span>
+                <span class="c1"># check if we don&#39;t actually exceed minimum range</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">16</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">235</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Input YUV appears to be full range, specify full_range=True!&quot;</span><span class="p">)</span>
                 <span class="c1"># convert to grey by assumng limited range input</span>
                 <span class="n">y_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">((</span><span class="n">y_data</span> <span class="o">-</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="mi">235</span> <span class="o">-</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span><span class="p">))</span>
 
@@ -160,6 +163,17 @@
 
 
 <span class="k">def</span> <span class="nf">read_container</span><span class="p">(</span><span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Read a multiplexed file via ffmpeg and yield the per-frame Y data</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_file (str): Input file path</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If no video streams were found</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        np.ndarray: The frame data, integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">container</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">video</span><span class="p">):</span>
@@ -169,7 +183,7 @@
         <span class="n">frame_data</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">frame</span><span class="o">.</span><span class="n">to_ndarray</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
             <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">yield</span> <span class="n">frame_data</span>
 </pre></div>
@@ -264,7 +278,7 @@
 <span class="sd">        NotImplementedError: If a wrong file format is chosen</span>
 
 <span class="sd">    Yields:</span>
-<span class="sd">        np.ndarray: The frame data</span>
+<span class="sd">        np.ndarray: The frame data, integer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO: add support for other YUV types</span>
     <span class="k">if</span> <span class="n">file_format</span> <span class="o">!=</span> <span class="n">FileFormat</span><span class="o">.</span><span class="n">YUV420P</span><span class="p">:</span>
@@ -280,7 +294,7 @@
             <span class="n">y_data</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">in_f</span><span class="o">.</span><span class="n">read</span><span class="p">((</span><span class="n">width</span> <span class="o">*</span> <span class="n">height</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
-                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
             <span class="p">)</span>
 
             <span class="c1"># read U and V components, but skip</span>
@@ -290,15 +304,18 @@
             <span class="c1"># u_data = (</span>
             <span class="c1">#     np.frombuffer(in_f.read(((width // 2) * (height // 2))), dtype=np.uint8)</span>
             <span class="c1">#     .reshape((height // 2, width // 2))</span>
-            <span class="c1">#     .astype(&quot;float32&quot;)</span>
+            <span class="c1">#     .astype(&quot;int&quot;)</span>
             <span class="c1"># )</span>
             <span class="c1"># v_data = (</span>
             <span class="c1">#     np.frombuffer(in_f.read(((width // 2) * (height // 2))), dtype=np.uint8)</span>
             <span class="c1">#     .reshape((height // 2, width // 2))</span>
-            <span class="c1">#     .astype(&quot;float32&quot;)</span>
+            <span class="c1">#     .astype(&quot;int&quot;)</span>
             <span class="c1"># )</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">full_range</span><span class="p">:</span>
+                <span class="c1"># check if we don&#39;t actually exceed minimum range</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">16</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">235</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Input YUV appears to be full range, specify full_range=True!&quot;</span><span class="p">)</span>
                 <span class="c1"># convert to grey by assumng limited range input</span>
                 <span class="n">y_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">((</span><span class="n">y_data</span> <span class="o">-</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="mi">235</span> <span class="o">-</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span><span class="p">))</span>
 
@@ -328,7 +345,7 @@
 <h6 id="yields">Yields</h6>
 
 <blockquote>
-  <p>np.ndarray: The frame data</p>
+  <p>np.ndarray: The frame data, integer</p>
 </blockquote>
 </div>
 
@@ -345,6 +362,17 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">read_container</span><span class="p">(</span><span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Read a multiplexed file via ffmpeg and yield the per-frame Y data</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_file (str): Input file path</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If no video streams were found</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        np.ndarray: The frame data, integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">container</span> <span class="o">=</span> <span class="n">av</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">video</span><span class="p">):</span>
@@ -354,14 +382,34 @@
         <span class="n">frame_data</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">frame</span><span class="o">.</span><span class="n">to_ndarray</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
             <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">yield</span> <span class="n">frame_data</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Read a multiplexed file via ffmpeg and yield the per-frame Y data</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>input_file (str):</strong>  Input file path</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError:</strong>  If no video streams were found</li>
+</ul>
+
+<h6 id="yields">Yields</h6>
+
+<blockquote>
+  <p>np.ndarray: The frame data, integer</p>
+</blockquote>
+</div>
+
 
                 </section>
     </main>
