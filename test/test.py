@@ -28,12 +28,11 @@ import sys
 import os
 from typing import Dict, List
 from numpy import NaN
-import numpy as np
 import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from siti_tools.file import FileFormat, read_container, read_yuv  # noqa: E402
+from siti_tools.file import read_container  # noqa: E402
 from siti_tools.siti import si, ti  # noqa: E402
 
 
@@ -72,17 +71,6 @@ class TestSiti:
                     ti = NaN
                 ret.append({"si": float(si), "ti": float(ti)})
         return ret
-
-    def test_full_range_warning(self):
-        raw_yuv = os.path.join(os.path.dirname(__file__), "videos_yuv", "raw.yuv")
-
-        with pytest.raises(RuntimeError) as excinfo:
-            for frame_data in read_yuv(raw_yuv, 16, 16, FileFormat.YUV420P, full_range=False):
-                print(frame_data)
-        assert "Input YUV appears to be full range" in str(excinfo.value)
-
-        for frame_data in read_yuv(raw_yuv, 16, 16, FileFormat.YUV420P, full_range=True):
-            print(frame_data)
 
     def test_siti(self, input_file: str, ground_truth: str):
         input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)

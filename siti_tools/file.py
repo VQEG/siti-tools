@@ -25,85 +25,10 @@
 import os
 from typing import Generator
 import numpy as np
-from enum import Enum
 import av
 
 
-class FileFormat(Enum):
-    YUV420P = 1
-
-
-def _convert_range(y_data: np.ndarray) -> np.ndarray:
-    # check if we don't actually exceed minimum range
-    if np.min(y_data) < 16 or np.max(y_data) > 235:
-        raise RuntimeError("Input YUV appears to be full range, specify full_range=True!")
-    # convert to grey by assumng limited range input
-    y_data = np.around((y_data - 16) / ((235 - 16) / 255))
-    return y_data
-
-
-def read_yuv(
-    input_file: str,
-    width: int,
-    height: int,
-    file_format=FileFormat.YUV420P,
-    full_range=False,
-) -> Generator[np.ndarray, None, None]:
-    """Read a YUV420p file and yield the per-frame Y data
-
-    Args:
-        input_file (str): Input file path
-        width (int): Width in pixels
-        height (int): Height in pixels
-        file_format (str, optional): The input file format. Defaults to FileFormat.YUV420P.
-        full_range (bool, optional): Whether to assume full range input. Defaults to False.
-
-    Raises:
-        NotImplementedError: If a wrong file format is chosen
-
-    Yields:
-        np.ndarray: The frame data, integer
-    """
-    # TODO: add support for other YUV types
-    if file_format != FileFormat.YUV420P:
-        raise NotImplementedError("Other file formats are not yet implemented!")
-
-    # get the number of frames
-    file_size = os.path.getsize(input_file)
-
-    num_frames = file_size // (width * height * 3 // 2)
-
-    with open(input_file, "rb") as in_f:
-        for _ in range(num_frames):
-            y_data = (
-                np.frombuffer(in_f.read((width * height)), dtype=np.uint8)
-                .reshape((height, width))
-                .astype("int")
-            )
-
-            # read U and V components, but skip
-            in_f.read((width // 2) * (height // 2) * 2)
-
-            # in case we need the data later, you can uncomment this:
-            # u_data = (
-            #     np.frombuffer(in_f.read(((width // 2) * (height // 2))), dtype=np.uint8)
-            #     .reshape((height // 2, width // 2))
-            #     .astype("int")
-            # )
-            # v_data = (
-            #     np.frombuffer(in_f.read(((width // 2) * (height // 2))), dtype=np.uint8)
-            #     .reshape((height // 2, width // 2))
-            #     .astype("int")
-            # )
-
-            if not full_range:
-                # check if we don't actually exceed minimum range
-                y_data = _convert_range(y_data)
-
-            yield y_data
-
-
-def read_container(input_file: str, full_range=False) -> Generator[np.ndarray, None, None]:
+def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
     """Read a multiplexed file via ffmpeg and yield the per-frame Y data
 
     Args:
