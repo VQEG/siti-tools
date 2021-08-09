@@ -151,6 +151,11 @@ Then run:
 python3 -m pytest test/test.py
 ```
 
+## Contributors
+
+- Werner Robitza
+- Lukas Krasula
+
 ## License
 
 MIT License
