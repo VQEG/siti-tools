@@ -25,19 +25,8 @@
 # SOFTWARE.
 
 import argparse
-from .siti import (
-    DEFAULT_HDR_MODE,
-    DEFAULT_SDR_RANGE,
-    DEFAULT_EOTF_FUNCTION,
-    DEFAULT_GAMMA,
-    DEFAULT_L_MIN,
-    DEFAULT_L_MAX,
-    DEFAULT_L_MIN_HDR,
-    DEFAULT_L_MAX_HDR,
-    HdrMode,
-    SdrRange,
-    EotfFunction,
-)
+import json
+from .siti import ColorRange, EotfFunction, HdrMode, SiTiCalculator
 
 
 class CustomFormatter(
@@ -82,35 +71,43 @@ def main():
     group_general.add_argument("-v", "--verbose", action="store_true")
     group_general.add_argument(
         "-m",
-        "--mode",
+        "--hdr-mode",
         help="Select HDR mode",
         type=HdrMode,
         choices=list(HdrMode),
-        default=DEFAULT_HDR_MODE,
+        default=SiTiCalculator.DEFAULT_HDR_MODE,
+    )
+    group_general.add_argument(
+        "-b",
+        "--bit-depth",
+        help="Select bit depth",
+        type=int,
+        choices=[8, 10, 12],
+        default=8,
+    )
+    group_general.add_argument(
+        "-r",
+        "--color-range",
+        help="Specify limited or full range",
+        type=ColorRange,
+        choices=list(ColorRange),
+        default=SiTiCalculator.DEFAULT_COLOR_RANGE,
     )
 
     group_sdr = parser.add_argument_group("SDR options")
-    group_sdr.add_argument(
-        "-r",
-        "--range",
-        help="Specify limited or full range for SDR",
-        type=SdrRange,
-        choices=list(SdrRange),
-        default=DEFAULT_SDR_RANGE,
-    )
     group_sdr.add_argument(
         "-e",
         "--eotf-function",
         help="Specify the EOTF function for converting SDR to HDR",
         type=EotfFunction,
         choices=list(EotfFunction),
-        default=DEFAULT_EOTF_FUNCTION,
+        default=SiTiCalculator.DEFAULT_EOTF_FUNCTION,
     )
     group_sdr.add_argument(
         "-g",
         "--gamma",
         help="Specify gamma for BT.1886 function",
-        default=DEFAULT_GAMMA,
+        default=SiTiCalculator.DEFAULT_GAMMA,
         type=float,
     )
 
@@ -118,19 +115,36 @@ def main():
     # Valid for ITU-R BT.1886 and ITU-R BT.2100 - TABLE 5
     group_display.add_argument(
         "--l-max",
-        help=f"Nominal peak luminance of the display in cd/m2 for achromatic pixels (default: {DEFAULT_L_MAX} for SDR, {DEFAULT_L_MAX_HDR} for HDR)",
+        help=f"Nominal peak luminance of the display in cd/m2 for achromatic pixels (default: {SiTiCalculator.DEFAULT_L_MAX} for SDR, {SiTiCalculator.DEFAULT_L_MAX_HDR} for HDR)",
         type=float,
     )
     # Valid for ITU-R BT.1886 and ITU-R BT.2100 - TABLE 5
     group_display.add_argument(
         "--l-min",
-        help=f"Display luminance for black in cd/m2 (default: {DEFAULT_L_MIN} for SDR, {DEFAULT_L_MIN_HDR} for HDR)",
+        help=f"Display luminance for black in cd/m2 (default: {SiTiCalculator.DEFAULT_L_MIN} for SDR, {SiTiCalculator.DEFAULT_L_MIN_HDR} for HDR)",
         type=float,
     )
 
     cli_args = parser.parse_args()
 
-    print(cli_args)
+    si_ti_calculator = SiTiCalculator(
+        hdr_mode=cli_args.hdr_mode,
+        bit_depth=cli_args.bit_depth,
+        color_range=cli_args.color_range,
+        eotf_function=cli_args.eotf_function,
+        l_max=cli_args.l_max,
+        l_min=cli_args.l_min,
+        gamma=cli_args.gamma,
+    )
+
+    si_ti_calculator.calculate(
+        cli_args.input,
+        num_frames=cli_args.num_frames,
+    )
+
+    results = si_ti_calculator.get_results()
+
+    print(json.dumps(results, indent=4))
 
 
 if __name__ == "__main__":

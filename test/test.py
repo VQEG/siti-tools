@@ -33,7 +33,7 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from siti_tools.file import read_container  # noqa: E402
-from siti_tools.siti import si, ti  # noqa: E402
+from siti_tools.siti import SiTiCalculator  # noqa: E402
 
 
 def pytest_generate_tests(metafunc):
@@ -73,6 +73,11 @@ class TestSiti:
         return ret
 
     def test_siti(self, input_file: str, ground_truth: str):
+        """
+        Test the raw SI/TI calculation functions.
+
+        Note: This does not test the entire integration with the display model/HDR conversion.
+        """
         input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
         ground_truth_path = os.path.join(os.path.dirname(__file__), "ground_truth", ground_truth)
 
@@ -85,8 +90,8 @@ class TestSiti:
         for frame_data, gt_data in zip(frame_generator, gt):
             print(f"Comparing frame {frame_cnt}")
 
-            si_value = si(frame_data)
-            ti_value = ti(frame_data, previous_frame_data)
+            si_value = SiTiCalculator.si(frame_data)
+            ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
 
             print(si_value, ti_value)
             print(gt_data)
