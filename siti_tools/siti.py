@@ -76,6 +76,9 @@ class SiTiCalculator:
     DEFAULT_L_MIN_HDR = 0.01
     DEFAULT_L_MAX_HDR = 1000.0
 
+    LIMITED_RANGE_MIN = 16 / 255
+    LIMITED_RANGE_MAX = 235 / 255
+
     def __init__(
         self,
         hdr_mode: HdrMode = DEFAULT_HDR_MODE,
@@ -145,7 +148,7 @@ class SiTiCalculator:
             "l_max": self.l_max,
             "l_min": self.l_min,
             "gamma": self.gamma,
-            "version": version
+            "version": version,
         }
 
     @staticmethod
@@ -214,6 +217,11 @@ class SiTiCalculator:
             frame_data: pixel values in the range [0, 1]
 
         """
+        if np.min(frame_data) < 0:
+            print("Warning: Input for eotf_1886() was < 0, truncating")
+        if np.max(frame_data) > 1:
+            print("Warning: Input for eotf_1886() was > 1, truncating")
+
         frame_data = np.maximum(frame_data, 0.0)
         frame_data = np.minimum(frame_data, 1.0)
 
@@ -238,6 +246,11 @@ class SiTiCalculator:
             frame_data: pixel values in the range [0, 1]
 
         """
+        if np.min(frame_data) < 0:
+            print("Warning: Input for eotf_inv_srgb() was < 0, truncating")
+        if np.max(frame_data) > 1:
+            print("Warning: Input for eotf_inv_srgb() was > 1, truncating")
+
         frame_data = np.maximum(frame_data, 0.0)
         frame_data = np.minimum(frame_data, 1.0)
 
@@ -259,9 +272,17 @@ class SiTiCalculator:
         Apply the SDR EOTF
 
         Args:
-            frame_data (np.ndarray): Raw frame data in full range
+            frame_data (np.ndarray): Raw frame data in full range, values in the range [0, 1]
             Other arguments: see calculate()
+
+        Returns:
+            frame_data: pixel values in the range [0, 1]
         """
+        if np.min(frame_data) < 0:
+            raise RuntimeError("Input for apply_display_model() was < 0")
+        if np.max(frame_data) > 1:
+            raise RuntimeError("Input for apply_display_model() was > 1")
+
         if eotf_function == EotfFunction.BT1886:
             fn = SiTiCalculator.eotf_1886
             kwargs = {"gamma": gamma}
@@ -283,7 +304,6 @@ class SiTiCalculator:
 
         Returns:
             frame_data: pixel values in the range [0, 1]
-
         """
 
         m = 78.84375
@@ -312,7 +332,6 @@ class SiTiCalculator:
 
         Returns:
             frame_data: pixel values in the physical luminance up to 10,000 cd/m^2
-
         """
         frame_data = np.maximum(frame_data, 0.0)
         frame_data = np.minimum(frame_data, 1.0)
@@ -329,6 +348,26 @@ class SiTiCalculator:
         frame_data = (l_max - l_min) * np.power(frame_data, gamma - 1.0) + l_min
 
         return frame_data
+
+    def normalize_to_original_range(self, frame_data: Union[np.ndarray, float]):
+        """
+        Normalize frame data in the range [0, 1] to their original range, based on
+        bit depth, e.g. from [0, 1] to [0, 255].
+        """
+        return frame_data * (2 ** self.bit_depth - 1)
+
+    def normalize_to_original_si_range(self, frame_data: Union[np.ndarray, float]):
+        """
+        Normalize frame data in the range [0, 1] to [0, 255], which was the original
+        range for SI/TI.
+        """
+        return frame_data * (2 ** 8 - 1)
+
+    def normalize_between_0_1(self, frame_data: Union[np.ndarray, float]):
+        """
+        Normalize frame data in the range [0, x] to [0, 1], based on bit depth.
+        """
+        return frame_data / (2 ** self.bit_depth - 1)
 
     def calculate(
         self,
@@ -357,19 +396,28 @@ class SiTiCalculator:
 
         current_frame = 0
         for frame_data in read_container(input_file):
-            # TODO: check what to do in case of > 8 bpc
+            # Normalize frame data according to bit depth between 0 and 1.
+            # This will transform [0, 255] to [0, 1], and [0, 1023] to [0, 1] etc.
+            frame_data = self.normalize_between_0_1(frame_data)
+
             # convert limited to full range
             if self.color_range == ColorRange.LIMITED:
                 # check if we don't actually exceed minimum range
-                if np.min(frame_data) < 16 or np.max(frame_data) > 235:
+                input_min = np.min(frame_data)
+                input_max = np.max(frame_data)
+                if (
+                    input_min < self.LIMITED_RANGE_MIN
+                    or input_max > self.LIMITED_RANGE_MAX
+                ):
+                    # inform the user about the original range
                     raise RuntimeError(
-                        "Input appears to be full range, but treated as limited range SDR!"
+                        "Input appears to be full range, but treated as limited range SDR! "
+                        f"Input range is [{int(self.normalize_to_original_range(input_min))}-{int(self.normalize_to_original_range(input_max))}]. "
                         "Specify the range as full instead."
                     )
-                frame_data = np.around((frame_data - 16) / ((235 - 16) / 255))
-
-            # normalize frame data according to bit depth between 0 and 1
-            frame_data = frame_data / (2 ** self.bit_depth - 1)
+                frame_data = (frame_data - self.LIMITED_RANGE_MIN) / (
+                    self.LIMITED_RANGE_MAX - self.LIMITED_RANGE_MIN
+                )
 
             if self.hdr_mode == HdrMode.SDR:
                 frame_data = SiTiCalculator.apply_display_model(
@@ -383,6 +431,7 @@ class SiTiCalculator:
                 frame_data = SiTiCalculator.oetf_pq(frame_data)
             elif self.hdr_mode == HdrMode.HDR10:
                 # nothing to do
+                # TODO: does this mean we also shouldn't normalize between [0-1] here?
                 pass
             elif self.hdr_mode == HdrMode.HLG:
                 frame_data = SiTiCalculator.eotf_hlg(frame_data)
@@ -390,14 +439,12 @@ class SiTiCalculator:
             else:
                 raise RuntimeError("Invalid HDR mode")
 
-            # TODO should we normalize back to the original range here? see #4
             si_value = SiTiCalculator.si(frame_data)
-            self.si_values.append(si_value)
+            self.si_values.append(self.normalize_to_original_si_range(si_value))
 
-            # TODO should we normalize back to the original range here? see #4
             ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
             if ti_value is not None:
-                self.ti_values.append(ti_value)
+                self.ti_values.append(self.normalize_to_original_si_range(ti_value))
 
             previous_frame_data = frame_data
 
@@ -419,5 +466,7 @@ class SiTiCalculator:
             "si": self.si_values,
             "ti": self.ti_values,
             "settings": self.get_general_settings(),
-            "input_file": os.path.basename(self.last_input_file) if self.last_input_file is not None else "",
+            "input_file": os.path.basename(self.last_input_file)
+            if self.last_input_file is not None
+            else "",
         }
