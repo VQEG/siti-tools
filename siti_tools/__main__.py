@@ -27,6 +27,7 @@
 import argparse
 import json
 from .siti import ColorRange, EotfFunction, HdrMode, SiTiCalculator
+from siti_tools import siti
 
 
 class CustomFormatter(
@@ -60,6 +61,12 @@ def main():
     group_general.add_argument(
         "input",
         help="Input file, can be Y4M or file in FFmpeg-readable container",
+        type=str,
+    )
+    group_general.add_argument(
+        "-s",
+        "--settings",
+        help="Load settings from previous JSON results file instead of using CLI args",
         type=str,
     )
     group_general.add_argument(
@@ -127,15 +134,32 @@ def main():
 
     cli_args = parser.parse_args()
 
-    si_ti_calculator = SiTiCalculator(
-        hdr_mode=cli_args.hdr_mode,
-        bit_depth=cli_args.bit_depth,
-        color_range=cli_args.color_range,
-        eotf_function=cli_args.eotf_function,
-        l_max=cli_args.l_max,
-        l_min=cli_args.l_min,
-        gamma=cli_args.gamma,
-    )
+    if cli_args.settings:
+        # read existing settings from output file
+        with open(cli_args.settings, "r") as results_file:
+            results = json.load(results_file)
+            settings = results["settings"]
+            version: str = settings["version"]
+            if not version.startswith("0."):
+                raise RuntimeError("Cannot parse settings with version 1.x")  # TODO: remove later once bumped to 1.x
+            del settings["version"]
+
+            # convert strings to Enum
+            settings["hdr_mode"] = HdrMode[settings["hdr_mode"].upper()]
+            settings["eotf_function"] = EotfFunction[settings["eotf_function"].upper()]
+            settings["color_range"] = ColorRange[settings["color_range"].upper()]
+
+            si_ti_calculator = SiTiCalculator.from_settings(settings)
+    else:
+        si_ti_calculator = SiTiCalculator(
+            hdr_mode=cli_args.hdr_mode,
+            bit_depth=cli_args.bit_depth,
+            color_range=cli_args.color_range,
+            eotf_function=cli_args.eotf_function,
+            l_max=cli_args.l_max,
+            l_min=cli_args.l_min,
+            gamma=cli_args.gamma,
+        )
 
     si_ti_calculator.calculate(
         cli_args.input,

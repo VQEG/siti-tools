@@ -79,6 +79,10 @@ class SiTiCalculator:
     LIMITED_RANGE_MIN = 16 / 255
     LIMITED_RANGE_MAX = 235 / 255
 
+    @staticmethod
+    def from_settings(settings: Dict):
+        return SiTiCalculator(**settings)
+
     def __init__(
         self,
         hdr_mode: HdrMode = DEFAULT_HDR_MODE,
@@ -437,7 +441,7 @@ class SiTiCalculator:
                 frame_data = SiTiCalculator.eotf_hlg(frame_data)
                 frame_data = SiTiCalculator.oetf_pq(frame_data)
             else:
-                raise RuntimeError("Invalid HDR mode")
+                raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
 
             si_value = SiTiCalculator.si(frame_data)
             self.si_values.append(self.normalize_to_original_si_range(si_value))
