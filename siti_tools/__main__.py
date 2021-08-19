@@ -37,6 +37,8 @@ class CustomFormatter(
     Format missing defaults with empty string.
     See: https://stackoverflow.com/a/34545549/435093
     """
+    def __init__(self, prog) -> None:
+        super().__init__(prog, width=100)
 
     def _get_help_string(self, action):
         help = action.help
@@ -55,7 +57,10 @@ class CustomFormatter(
 
 
 def main():
-    parser = argparse.ArgumentParser(formatter_class=CustomFormatter)
+    parser = argparse.ArgumentParser(
+        prog="siti-tools",
+        formatter_class=CustomFormatter
+    )
 
     group_general = parser.add_argument_group("general")
     group_general.add_argument(

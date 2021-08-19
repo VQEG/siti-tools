@@ -69,9 +69,42 @@ The measure of temporal information (TI) is computed as the maximum over time (m
 
 ## Command Line Usage
 
-If you need a command line version that uses `siti-tools` in the background, check out [slhck/siti](https://github.com/slhck/siti).
+Run `siti-tools -h` for a list of command line options:
 
-This repository will gain a command line interface once it gets more features.
+```
+usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [-v] [-m {sdr,hdr10,hlg}] [-b {8,10,12}]
+                  [-r {limited,full}] [-e {bt1886,inv_srgb}] [-g GAMMA] [--l-max L_MAX]
+                  [--l-min L_MIN]
+                  input
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+general:
+  input                 Input file, can be Y4M or file in FFmpeg-readable container
+  -s SETTINGS, --settings SETTINGS
+                        Load settings from previous JSON results file instead of using CLI args
+  -n NUM_FRAMES, --num-frames NUM_FRAMES
+                        Number of frames to calculate, must be >= 2 (default: unlimited)
+  -v, --verbose
+  -m {sdr,hdr10,hlg}, --hdr-mode {sdr,hdr10,hlg}
+                        Select HDR mode (default: sdr)
+  -b {8,10,12}, --bit-depth {8,10,12}
+                        Select bit depth (default: 8)
+  -r {limited,full}, --color-range {limited,full}
+                        Specify limited or full range (default: limited)
+
+SDR options:
+  -e {bt1886,inv_srgb}, --eotf-function {bt1886,inv_srgb}
+                        Specify the EOTF function for converting SDR to HDR (default: bt1886)
+  -g GAMMA, --gamma GAMMA
+                        Specify gamma for BT.1886 function (default: 2.4)
+
+Display options:
+  --l-max L_MAX         Nominal peak luminance of the display in cd/m2 for achromatic pixels
+                        (default: 300 for SDR, 1000.0 for HDR)
+  --l-min L_MIN         Display luminance for black in cd/m2 (default: 0.1 for SDR, 0.01 for HDR)
+```
 
 ## API Usage
 
