@@ -309,6 +309,8 @@ class SiTiCalculator:
         Returns:
             frame_data: pixel values in the range [0, 1]
         """
+        frame_data = np.maximum(frame_data, 0.0)
+        frame_data = np.minimum(frame_data, 1.0)
 
         m = 78.84375
         n = 0.1593017578125
@@ -316,6 +318,7 @@ class SiTiCalculator:
         c2 = 18.8515625
         c3 = 18.6875
         lm1 = np.power(10000.0, n)
+        # FIXME: this might return an error if input is negative, see https://stackoverflow.com/q/45384602/
         lm2 = np.power(frame_data, n)
 
         frame_data = np.power((c1 * lm1 + c2 * lm2) / (lm1 + c3 * lm2), m)
