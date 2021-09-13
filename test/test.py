@@ -45,7 +45,7 @@ from siti_tools.siti import (
 
 def pytest_generate_tests(metafunc):
     """
-    This function automatically populates the tests based on the contents of the 'BASIC_SCENARIOS' variable below.
+    This function automatically populates the tests based on the contents of the 'MAIN_SCENARIOS' and 'CALCULATOR_SCENARIOS' variables below.
     """
     test_siti_main_scenario_ids = []
     test_siti_main_argvalues = []
@@ -56,7 +56,7 @@ def pytest_generate_tests(metafunc):
     test_siti_calculator_argnames = []
 
     if metafunc.function.__name__ == "test_siti_main_functions":
-        for scenario in metafunc.cls.BASIC_SCENARIOS:
+        for scenario in metafunc.cls.MAIN_SCENARIOS:
             # e.g. ('basic testing', {'input_file': 'test.mp4', 'ground_truth': 'test.csv'})
             scenario_id, scenario_params = scenario
             test_siti_main_scenario_ids.append(scenario_id)
@@ -72,7 +72,7 @@ def pytest_generate_tests(metafunc):
         )
 
     elif metafunc.function.__name__ == "test_siti_calculator":
-        for scenario in metafunc.cls.EXTENDED_SCENARIOS:
+        for scenario in metafunc.cls.CALCULATOR_SCENARIOS:
             scenario_id, scenario_params = scenario
             test_siti_calculator_scenario_ids.append(scenario_id)
             scenario_kwargs = scenario_params.items()
@@ -88,7 +88,7 @@ def pytest_generate_tests(metafunc):
 
 
 class TestSiti:
-    BASIC_SCENARIOS = [
+    MAIN_SCENARIOS = [
         ("basic testing", {"input_file": "test.mp4", "ground_truth": "test.csv"}),
         (
             "foreman",
@@ -97,7 +97,7 @@ class TestSiti:
         # add further tests here
     ]
 
-    EXTENDED_SCENARIOS = [
+    CALCULATOR_SCENARIOS = [
         # TODO
         # these require further instantiation via the SiTiCalculator class, with further meta variables
         (
@@ -134,15 +134,13 @@ class TestSiti:
         return ret
 
     @staticmethod
-    def _try_download_file(remote_path: str):
+    def _try_download_file(remote_path: str, local_path: str):
         """Download a remote file via HTTP/S
 
         Args:
             remote_path (str): The remote URL
+            local_path (str): The local storage path
         """
-        local_path = os.path.join(
-            os.path.dirname(__file__), "videos", os.path.basename(remote_path)
-        )
         print(f"Downloading to {local_path} ...")
         response = requests.get(remote_path, stream=True)
         total_size_in_bytes = int(response.headers.get("content-length", 0))
@@ -154,24 +152,40 @@ class TestSiti:
                 local_file.write(data)
         progress_bar.close()
 
+    @staticmethod
+    def _download_file_if_needed(input_file: str):
+        input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
+        if not os.path.isfile(input_file_path) and input_file.startswith("https:"):
+            local_path = os.path.join(
+                os.path.dirname(__file__), "videos", os.path.basename(input_file_path)
+            )
+            if not os.path.isfile(local_path):
+                TestSiti._try_download_file(input_file, local_path)
+
     def test_siti_calculator(
         self,
         input_file: str,
         ground_truth: str,
-        siti_calculator_kwargs,
+        siti_calculator_kwargs: Dict,
     ):
-        input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
+        """
+        Test the SiTiCalculator class, with the display model/HDR conversion.
+
+        Args:
+            input_file (str): file name of the input file or HTTP(S) path in case of remote video
+            ground_truth (str): file name of ground truth CSV file
+            siti_calculator_kwargs: any arguments passed to the SiTiCalculator class
+        """
+        TestSiti._download_file_if_needed(input_file)
+
         ground_truth_path = os.path.join(
             os.path.dirname(__file__), "ground_truth", ground_truth
         )
-
-        if not os.path.isfile(input_file_path) and input_file.startswith("https:"):
-            TestSiti._try_download_file(input_file)
-
         gt = TestSiti._read_ground_truth(ground_truth_path)
 
+        input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
         calculator = SiTiCalculator(**siti_calculator_kwargs)
-        si, ti, _ = calculator.calculate(input_file)
+        si, ti, _ = calculator.calculate(input_file_path)
 
         frame_cnt = 1
 
@@ -199,18 +213,17 @@ class TestSiti:
         Note: This does not test the entire integration with the display model/HDR conversion.
 
         Args:
-            input_file (str): file name of the input file or HTTP path in case of remote video
+            input_file (str): file name of the input file or HTTP(S) path in case of remote video
             ground_truth (str): file name of ground truth CSV file
         """
+        TestSiti._download_file_if_needed(input_file)
+
         input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
+        frame_generator = read_container(input_file_path)
+
         ground_truth_path = os.path.join(
             os.path.dirname(__file__), "ground_truth", ground_truth
         )
-
-        if not os.path.isfile(input_file_path) and input_file.startswith("https:"):
-            TestSiti._try_download_file(input_file)
-
-        frame_generator = read_container(input_file_path)
         gt = TestSiti._read_ground_truth(ground_truth_path)
 
         frame_cnt = 1
