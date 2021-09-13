@@ -27,7 +27,6 @@
 import argparse
 import json
 from .siti import ColorRange, EotfFunction, HdrMode, SiTiCalculator
-from siti_tools import siti
 
 
 class CustomFormatter(
