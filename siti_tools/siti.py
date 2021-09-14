@@ -326,6 +326,89 @@ class SiTiCalculator:
         return frame_data
 
     @staticmethod
+    def oetf_pu21(frame_data: np.ndarray, mode="banding") -> np.ndarray:
+        """
+        PU21 OETF, see https://github.com/gfxdisp/pu21
+
+        Args:
+            frame_data (np.ndarray): Raw frame data in full range, values in the range [0, 1]
+
+        Returns:
+            frame_data: pixel values in the range [0, 1]
+        """
+
+        if mode == "banding":
+            p = [
+                1.070275272,
+                0.4088273932,
+                0.153224308,
+                0.2520326168,
+                1.063512885,
+                1.14115047,
+                521.4527484,
+            ]
+            p_min = -1.5580e-07
+            p_max = 520.4673
+        elif mode == "banding_glare":
+            p = [
+                0.353487901,
+                0.3734658629,
+                8.277049286e-05,
+                0.9062562627,
+                0.09150303166,
+                0.9099517204,
+                596.3148142,
+            ]
+            p_min = 5.4705e-10
+            p_max = 595.3939
+        elif mode == "peaks":
+            p = [
+                1.043882782,
+                0.6459495343,
+                0.3194584211,
+                0.374025247,
+                1.114783422,
+                1.095360363,
+                384.9217577,
+            ]
+            p_min = 1.3674e-07
+            p_max = 380.9853
+        elif mode == "peaks_glare":
+            p = [
+                816.885024,
+                1479.463946,
+                0.001253215609,
+                0.9329636822,
+                0.06746643971,
+                1.573435413,
+                419.6006374,
+            ]
+            p_min = -9.7360e-08
+            p_max = 407.5066
+        else:
+            assert False
+
+        # scale frame_data to the range 0.005 - 10,000
+        frame_data = frame_data * 10000.0
+        frame_data = np.maximum(frame_data, 0.05)
+
+        frame_data = p[6] * (
+            np.power(
+                (
+                    (p[0] + p[1] * np.power(frame_data, p[3]))
+                    / (1.0 + p[2] * np.power(frame_data, p[3]))
+                ),
+                p[4],
+            )
+            - p[5]
+        )
+
+        # get the output into the range [0, 1]
+        frame_data = (frame_data - p_min) / (p_max - p_min)
+
+        return frame_data
+
+    @staticmethod
     def eotf_hlg(
         frame_data: np.ndarray,
         l_min: float = DEFAULT_L_MIN_HDR,
@@ -377,9 +460,7 @@ class SiTiCalculator:
         return frame_data / (2 ** self.bit_depth - 1)
 
     def calculate(
-        self,
-        input_file: str,
-        num_frames=0,
+        self, input_file: str, num_frames=0,
     ) -> Tuple[List[float], List[Union[float, None]], int]:
         """Calculate SI and TI from an input file.
 
