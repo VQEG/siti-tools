@@ -522,8 +522,7 @@ class SiTiCalculator:
 
                 frame_data = SiTiCalculator.oetf_pq(frame_data)
             elif self.hdr_mode == HdrMode.HDR10:
-                # nothing to do
-                # TODO: does this mean we also shouldn't normalize between [0-1] here?
+                # nothing to do, we are already in PQ domain
                 pass
             elif self.hdr_mode == HdrMode.HLG:
                 frame_data = SiTiCalculator.eotf_hlg(frame_data)
