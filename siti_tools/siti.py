@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, Literal
 from scipy import ndimage
 from enum import Enum
 import numpy as np
@@ -326,12 +326,16 @@ class SiTiCalculator:
         return frame_data
 
     @staticmethod
-    def oetf_pu21(frame_data: np.ndarray, mode="banding") -> np.ndarray:
+    def oetf_pu21(
+        frame_data: np.ndarray,
+        mode: Literal["banding", "banding_glare", "peaks", "peaks_glare"] = "banding",
+    ) -> np.ndarray:
         """
         PU21 OETF, see https://github.com/gfxdisp/pu21
 
         Args:
             frame_data (np.ndarray): Raw frame data in full range, values in the range [0, 1]
+            banding (Literal["banding", "banding_glare", "peaks", "peaks_glare"]), defaults to "banding"
 
         Returns:
             frame_data: pixel values in the range [0, 1]
@@ -386,7 +390,7 @@ class SiTiCalculator:
             p_min = -9.7360e-08
             p_max = 407.5066
         else:
-            assert False
+            raise RuntimeError("Invalid mode specified for PU21")
 
         # scale frame_data to the range 0.005 - 10,000
         frame_data = frame_data * 10000.0
