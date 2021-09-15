@@ -65,11 +65,29 @@ class EotfFunction(EnumArg):
     INV_SRGB = "inv_srgb"
 
 
+class CalculationDomain(EnumArg):
+    """
+    Domain in which to calculate SI/TI
+    """
+
+    PQ = "pq"
+    PU21 = "pu21"
+
+
+class Pu21Mode(EnumArg):
+    BANDING = "banding"
+    BANDING_GLARE = "banding_glare"
+    PEAKS = "peaks"
+    PEAKS_GLARE = "peaks_glare"
+
+
 class SiTiCalculator:
     DEFAULT_HDR_MODE = HdrMode.SDR
     DEFAULT_BIT_DEPTH = 8  # or 10, 12
     DEFAULT_COLOR_RANGE = ColorRange.LIMITED
     DEFAULT_EOTF_FUNCTION = EotfFunction.BT1886
+    DEFAULT_CALCULATION_DOMAIN = CalculationDomain.PQ
+    DEFAULT_PU21_MODE = Pu21Mode.BANDING
     DEFAULT_GAMMA = 2.4  # for BT.1886
     DEFAULT_L_MIN = 0.1
     DEFAULT_L_MAX = 300
@@ -89,9 +107,11 @@ class SiTiCalculator:
         bit_depth: int = DEFAULT_BIT_DEPTH,
         color_range: ColorRange = DEFAULT_COLOR_RANGE,
         eotf_function: EotfFunction = DEFAULT_EOTF_FUNCTION,
+        calculation_domain: CalculationDomain = DEFAULT_CALCULATION_DOMAIN,
         l_max: float = DEFAULT_L_MAX,
         l_min: float = DEFAULT_L_MIN,
         gamma: float = DEFAULT_GAMMA,
+        pu21_mode: Pu21Mode = DEFAULT_PU21_MODE,
     ):
         """
         Create a new SI/TI calculator
@@ -101,9 +121,11 @@ class SiTiCalculator:
             bit_depth (int, optional): 8, 10 or 12. Defaults to 8.
             color_range (ColorRange, optional): Set the color range (limited or full). Defaults to limited.
             eotf_function (EotfFunction, optional): EOTF function for converting SDR to HDR. Defaults to BT.1886.
+            calculation_domain (CalculationDomain, optional): Domain to calculate SI/TI in. Defaults to PQ.
             l_max (float, optional): Set the peak display luminance in cd/m2. Defaults to 300 (SDR) or 1000 (HDR).
             l_min (float, optional): Set the black display luminance in cd/m2. Defaults to 0.1 (SDR) or 0.01 (HDR).
             gamma (float, optional): Set the BT.1886 gamma. Defaults to 2.4.
+            pu21_mode (Pu21Mode, optional): Set the default PU21 mode. Defaults to BANDING.
         """
         self.hdr_mode = hdr_mode
 
@@ -114,6 +136,15 @@ class SiTiCalculator:
 
         self.color_range = color_range
         self.eotf_function = eotf_function
+        self.calculation_domain = calculation_domain
+
+        self.pu21_mode = pu21_mode
+        self.oetf_function_kwargs = {}
+        if self.calculation_domain == CalculationDomain.PQ:
+            self.oetf_function = SiTiCalculator.oetf_pq
+        else:
+            self.oetf_function = SiTiCalculator.oetf_pu21
+            self.oetf_function_kwargs["mode"] = self.pu21_mode
 
         # overwrite the default depending on HDR type
         if l_max is None:
@@ -145,6 +176,7 @@ class SiTiCalculator:
         A dictionary of settings used for the calculation
         """
         return {
+            "calculation_domain": str(self.calculation_domain),
             "hdr_mode": str(self.hdr_mode),
             "bit_depth": self.bit_depth,
             "color_range": str(self.color_range),
@@ -152,6 +184,7 @@ class SiTiCalculator:
             "l_max": self.l_max,
             "l_min": self.l_min,
             "gamma": self.gamma,
+            "pu21_mode": str(self.pu21_mode),
             "version": version,
         }
 
@@ -328,14 +361,14 @@ class SiTiCalculator:
     @staticmethod
     def oetf_pu21(
         frame_data: np.ndarray,
-        mode: Literal["banding", "banding_glare", "peaks", "peaks_glare"] = "banding",
+        mode: Pu21Mode = Pu21Mode.BANDING,
     ) -> np.ndarray:
         """
         PU21 OETF, see https://github.com/gfxdisp/pu21
 
         Args:
             frame_data (np.ndarray): Raw frame data in full range, values in the range [0, 1]
-            banding (Literal["banding", "banding_glare", "peaks", "peaks_glare"]), defaults to "banding"
+            mode (Pu21Mode), defaults to Pu21Mode.BANDING
 
         Returns:
             frame_data: pixel values in the range [0, 1]
@@ -464,7 +497,9 @@ class SiTiCalculator:
         return frame_data / (2 ** self.bit_depth - 1)
 
     def calculate(
-        self, input_file: str, num_frames=0,
+        self,
+        input_file: str,
+        num_frames=0,
     ) -> Tuple[List[float], List[Union[float, None]], int]:
         """Calculate SI and TI from an input file.
 
@@ -520,13 +555,14 @@ class SiTiCalculator:
                     gamma=self.gamma,
                 )
 
-                frame_data = SiTiCalculator.oetf_pq(frame_data)
+                frame_data = self.oetf_function(frame_data, **self.oetf_function_kwargs)
             elif self.hdr_mode == HdrMode.HDR10:
                 # nothing to do, we are already in PQ domain
+                # TODO allow using Pu21 here?
                 pass
             elif self.hdr_mode == HdrMode.HLG:
                 frame_data = SiTiCalculator.eotf_hlg(frame_data)
-                frame_data = SiTiCalculator.oetf_pq(frame_data)
+                frame_data = self.oetf_function(frame_data, **self.oetf_function_kwargs)
             else:
                 raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
 

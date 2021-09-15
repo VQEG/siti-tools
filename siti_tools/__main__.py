@@ -26,7 +26,14 @@
 
 import argparse
 import json
-from .siti import ColorRange, EotfFunction, HdrMode, SiTiCalculator
+from .siti import (
+    CalculationDomain,
+    ColorRange,
+    EotfFunction,
+    HdrMode,
+    Pu21Mode,
+    SiTiCalculator,
+)
 
 
 class CustomFormatter(
@@ -36,6 +43,7 @@ class CustomFormatter(
     Format missing defaults with empty string.
     See: https://stackoverflow.com/a/34545549/435093
     """
+
     def __init__(self, prog) -> None:
         super().__init__(prog, width=100)
 
@@ -56,10 +64,7 @@ class CustomFormatter(
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        prog="siti-tools",
-        formatter_class=CustomFormatter
-    )
+    parser = argparse.ArgumentParser(prog="siti-tools", formatter_class=CustomFormatter)
 
     group_general = parser.add_argument_group("general")
     group_general.add_argument(
@@ -80,6 +85,14 @@ def main():
         type=int,
     )
     group_general.add_argument("-v", "--verbose", action="store_true")
+    group_general.add_argument(
+        "-c",
+        "--calculation-domain",
+        help="Select calculation domain",
+        type=CalculationDomain,
+        choices=list(CalculationDomain),
+        default=SiTiCalculator.DEFAULT_CALCULATION_DOMAIN,
+    )
     group_general.add_argument(
         "-m",
         "--hdr-mode",
@@ -136,6 +149,15 @@ def main():
         type=float,
     )
 
+    group_pu21 = parser.add_argument_group("PU21 options")
+    group_pu21.add_argument(
+        "--pu21-mode",
+        help="Specify mode for PU21",
+        type=Pu21Mode,
+        choices=list(Pu21Mode),
+        default=SiTiCalculator.DEFAULT_PU21_MODE,
+    )
+
     cli_args = parser.parse_args()
 
     if cli_args.settings:
@@ -145,17 +167,33 @@ def main():
             settings = results["settings"]
             version: str = settings["version"]
             if not version.startswith("0."):
-                raise RuntimeError("Cannot parse settings with version 1.x")  # TODO: remove later once bumped to 1.x
+                raise RuntimeError(
+                    "Cannot parse settings with version 1.x"
+                )  # TODO: remove later once bumped to 1.x
             del settings["version"]
 
             # convert strings to Enum
-            settings["hdr_mode"] = HdrMode[settings["hdr_mode"].upper()]
-            settings["eotf_function"] = EotfFunction[settings["eotf_function"].upper()]
-            settings["color_range"] = ColorRange[settings["color_range"].upper()]
+            if "calculation_domain" in settings:
+                settings["calculation_domain"] = CalculationDomain[
+                    settings["calculation_domain"].upper()
+                ]
+            if "hdr_mode" in settings:
+                settings["hdr_mode"] = HdrMode[settings["hdr_mode"].upper()]
+            if "bit_depth" in settings:
+                settings["bit_depth"] = settings["bit_depth"]
+            if "color_range" in settings:
+                settings["color_range"] = ColorRange[settings["color_range"].upper()]
+            if "eotf_function" in settings:
+                settings["eotf_function"] = EotfFunction[
+                    settings["eotf_function"].upper()
+                ]
+            if "pu21_mode" in settings:
+                settings["pu21_mode"] = Pu21Mode[settings["pu21_mode"].upper()]
 
             si_ti_calculator = SiTiCalculator.from_settings(settings)
     else:
         si_ti_calculator = SiTiCalculator(
+            calculation_domain=cli_args.calculation_domain,
             hdr_mode=cli_args.hdr_mode,
             bit_depth=cli_args.bit_depth,
             color_range=cli_args.color_range,
@@ -163,6 +201,7 @@ def main():
             l_max=cli_args.l_max,
             l_min=cli_args.l_min,
             gamma=cli_args.gamma,
+            pu21_mode=cli_args.pu21_mode,
         )
 
     si_ti_calculator.calculate(
