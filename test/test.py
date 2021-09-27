@@ -31,6 +31,7 @@ from numpy import NaN
 import pytest
 import requests
 from tqdm import tqdm
+from itertools import zip_longest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -104,8 +105,12 @@ class TestSiti:
             "FourPeople_480x270_60.y4m",
             {
                 "input_file": "https://media.xiph.org/video/aomctc/test_set/a5_270p/FourPeople_480x270_60.y4m",
-                "ground_truth": "FourPeople_480x270_60.y4m",
-                "siti_calculator_kwargs": {"hdr_mode": HdrMode.HDR10},
+                "max_len": 2 * 1024 * 1024,  # 2 MiB
+                "ground_truth": "FourPeople_480x270_60.csv",
+                "siti_calculator_kwargs": {
+                    "hdr_mode": HdrMode.HDR10,
+                    "color_range": ColorRange.FULL,
+                },
             },
         )
         # (
@@ -134,38 +139,56 @@ class TestSiti:
         return ret
 
     @staticmethod
-    def _try_download_file(remote_path: str, local_path: str):
+    def _try_download_file(remote_path: str, local_path: str, max_len: int = None):
         """Download a remote file via HTTP/S
 
         Args:
             remote_path (str): The remote URL
             local_path (str): The local storage path
+            max_len (int): The maximum number of bytes to download (default: None)
         """
         print(f"Downloading to {local_path} ...")
         response = requests.get(remote_path, stream=True)
-        total_size_in_bytes = int(response.headers.get("content-length", 0))
+        content_length = int(response.headers.get("content-length", 0))
+
+        if max_len is None:
+            total_size_in_bytes = content_length
+        else:
+            total_size_in_bytes = min(content_length, max_len)
+
+        total_downloaded = 0
         block_size = 1024 * 1024  # 1 MiB
         progress_bar = tqdm(total=total_size_in_bytes, unit="iB", unit_scale=True)
         with open(local_path, "wb") as local_file:
             for data in response.iter_content(block_size):
                 progress_bar.update(len(data))
+                total_downloaded += len(data)
                 local_file.write(data)
+                if max_len is not None and total_downloaded >= max_len:
+                    print(
+                        f"Stopping download of {local_path} after {total_downloaded} Bytes"
+                    )
+                    break
         progress_bar.close()
 
     @staticmethod
-    def _download_file_if_needed(input_file: str):
+    def _download_file_if_needed(input_file: str, max_len: int = None):
+        """
+        Check if a local file already exists for the given URL; if not, download it
+        """
         input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
         if not os.path.isfile(input_file_path) and input_file.startswith("https:"):
             local_path = os.path.join(
                 os.path.dirname(__file__), "videos", os.path.basename(input_file_path)
             )
             if not os.path.isfile(local_path):
-                TestSiti._try_download_file(input_file, local_path)
+                TestSiti._try_download_file(input_file, local_path, max_len=max_len)
 
     def test_siti_calculator(
         self,
         input_file: str,
         ground_truth: str,
+        max_len: int,
         siti_calculator_kwargs: Dict,
     ):
         """
@@ -174,22 +197,23 @@ class TestSiti:
         Args:
             input_file (str): file name of the input file or HTTP(S) path in case of remote video
             ground_truth (str): file name of ground truth CSV file
+            max_len (int): max length of file to download, in case of remote video
             siti_calculator_kwargs: any arguments passed to the SiTiCalculator class
         """
-        TestSiti._download_file_if_needed(input_file)
+        TestSiti._download_file_if_needed(input_file, max_len)
 
         ground_truth_path = os.path.join(
             os.path.dirname(__file__), "ground_truth", ground_truth
         )
         gt = TestSiti._read_ground_truth(ground_truth_path)
 
-        input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
+        input_file_path = os.path.join(os.path.dirname(__file__), "videos", os.path.basename(input_file))
         calculator = SiTiCalculator(**siti_calculator_kwargs)
         si, ti, _ = calculator.calculate(input_file_path)
 
         frame_cnt = 1
 
-        for siti_results, gt_data in zip(list(zip(si, ti)), gt):
+        for siti_results, gt_data in zip(zip_longest(si, ti), gt):
             print(f"Comparing frame {frame_cnt}")
 
             si_value, ti_value = siti_results
