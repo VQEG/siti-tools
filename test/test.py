@@ -119,7 +119,7 @@ class TestSiti:
                     "color_range": ColorRange.FULL,
                 },
             },
-        )
+        ),
         # (
         #     "CosmosCaterpillar_2048x858p24_hdr10",
         #     {
