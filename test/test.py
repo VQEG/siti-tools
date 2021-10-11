@@ -223,6 +223,8 @@ class TestSiti:
             max_download_len (int): max length of file to download, in case of remote video
             siti_calculator_kwargs: any arguments passed to the SiTiCalculator class
         """
+        print()
+        print(f"Testing {input_file}")
         TestSiti._download_file_if_needed(input_file, max_download_len)
 
         ground_truth_path = os.path.join(
@@ -239,10 +241,12 @@ class TestSiti:
         # we require one more SI value than TI values, since first frame is not defined
         assert len(si_values) == len(ti_values) + 1
 
-        for si_value, si_gt in zip(si_values, gt["si"]):
+        for frame_idx, (si_value, si_gt) in enumerate(zip(si_values, gt["si"])):
+            print(f"Frame {frame_idx+1}, SI {si_value}, Ground Truth {si_gt}")
             assert pytest.approx(si_value, 0.01) == si_gt
 
-        for ti_value, ti_gt in zip(ti_values, gt["ti"]):
+        for frame_idx, (ti_value, ti_gt) in enumerate(zip(ti_values, gt["ti"])):
+            print(f"Frame {frame_idx+1}, TI {ti_value}, Ground Truth {ti_gt}")
             assert pytest.approx(ti_value, 0.01) == ti_gt
 
     def test_siti_main_functions(self, input_file: str, ground_truth: str):
@@ -255,6 +259,8 @@ class TestSiti:
             input_file (str): file name of the input file or HTTP(S) path in case of remote video
             ground_truth (str): file name of ground truth file
         """
+        print()
+        print(f"Testing {input_file}")
         TestSiti._download_file_if_needed(input_file)
 
         input_file_path = os.path.join(os.path.dirname(__file__), "videos", input_file)
@@ -269,13 +275,11 @@ class TestSiti:
 
         previous_frame_data = None
         for frame_data, gt_data in zip(frame_generator, gt):
-            print(f"Comparing frame {frame_cnt}")
-
             si_value = SiTiCalculator.si(frame_data)
             ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
 
-            print(si_value, ti_value)
-            print(gt_data)
+            print(f"Frame {frame_cnt}: SI {si_value}, {ti_value}")
+            print(f"Ground truth: {gt_data}")
 
             assert pytest.approx(si_value, 0.01) == gt_data["si"]
 
