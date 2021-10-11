@@ -577,7 +577,7 @@ class SiTiCalculator:
 
             current_frame += 1
 
-            if num_frames is not None and current_frame >= num_frames:
+            if num_frames not in [None, 0] and current_frame >= num_frames:
                 return self.si_values, self.ti_values, current_frame
 
         return self.si_values, self.ti_values, current_frame
