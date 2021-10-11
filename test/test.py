@@ -26,12 +26,13 @@
 
 import sys
 import os
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from numpy import NaN
 import pytest
 import requests
 from tqdm import tqdm
 from itertools import zip_longest
+import json
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -58,7 +59,7 @@ def pytest_generate_tests(metafunc):
 
     if metafunc.function.__name__ == "test_siti_main_functions":
         for scenario in metafunc.cls.MAIN_SCENARIOS:
-            # e.g. ('basic testing', {'input_file': 'test.mp4', 'ground_truth': 'test.csv'})
+            # e.g. ('basic testing', {'input_file': 'test.mp4', 'ground_truth': 'test.json'})
             scenario_id, scenario_params = scenario
             test_siti_main_scenario_ids.append(scenario_id)
             scenario_kwargs = scenario_params.items()
@@ -90,23 +91,29 @@ def pytest_generate_tests(metafunc):
 
 class TestSiti:
     MAIN_SCENARIOS = [
-        ("basic testing", {"input_file": "test.mp4", "ground_truth": "test.csv"}),
         (
-            "foreman",
+            "foreman_cif",
             {"input_file": "foreman_cif.y4m", "ground_truth": "foreman_cif.csv"},
         ),
         # add further tests here
     ]
 
     CALCULATOR_SCENARIOS = [
-        # TODO
         # these require further instantiation via the SiTiCalculator class, with further meta variables
+        # {
+        #     "input_file": "<a URL to a remote file>",
+        #     "max_download_len": <bytes to download>
+        #     "ground_truth": "<name of JSON file with ground truth>",
+        #     "siti_calculator_kwargs": {
+        #       <any options passed to SiTiCalculator as key-value pair>
+        #     },
+        # },
         (
             "FourPeople_480x270_60.y4m",
             {
                 "input_file": "https://media.xiph.org/video/aomctc/test_set/a5_270p/FourPeople_480x270_60.y4m",
-                "max_len": 2 * 1024 * 1024,  # 2 MiB
-                "ground_truth": "FourPeople_480x270_60.csv",
+                "max_download_len": 10 * 1024 * 1024,  # 10 MiB
+                "ground_truth": "FourPeople_480x270_60.json",
                 "siti_calculator_kwargs": {
                     "hdr_mode": HdrMode.HDR10,
                     "color_range": ColorRange.FULL,
@@ -117,13 +124,13 @@ class TestSiti:
         #     "CosmosCaterpillar_2048x858p24_hdr10",
         #     {
         #         "input_file": "https://media.xiph.org/video/aomctc/test_set/hdr2_2k/CosmosCaterpillar_2048x858p24_hdr10.y4m",
-        #         "ground_truth": "CosmosCaterpillar_2048x858p24_hdr10.csv",
+        #         "ground_truth": "CosmosCaterpillar_2048x858p24_hdr10.json",
         #     },
         # )
     ]
 
     @staticmethod
-    def _read_ground_truth(ground_truth: str) -> List[Dict[str, float]]:
+    def _read_ground_truth_csv(ground_truth: str) -> List[Dict[str, float]]:
         ret = []
         with open(ground_truth, "r") as gtf:
             header_read = False
@@ -139,22 +146,33 @@ class TestSiti:
         return ret
 
     @staticmethod
-    def _try_download_file(remote_path: str, local_path: str, max_len: int = None):
+    def _read_ground_truth_json(ground_truth: str) -> Dict:
+        """
+        Read the ground truth JSON file and return the entire dictionary
+        """
+        with open(ground_truth, "r") as gtf:
+            content = json.load(gtf)
+            return content
+
+    @staticmethod
+    def _try_download_file(
+        remote_path: str, local_path: str, max_download_len: int = None
+    ):
         """Download a remote file via HTTP/S
 
         Args:
             remote_path (str): The remote URL
             local_path (str): The local storage path
-            max_len (int): The maximum number of bytes to download (default: None)
+            max_download_len (int): The maximum number of bytes to download (default: None)
         """
         print(f"Downloading to {local_path} ...")
         response = requests.get(remote_path, stream=True)
         content_length = int(response.headers.get("content-length", 0))
 
-        if max_len is None:
+        if max_download_len is None:
             total_size_in_bytes = content_length
         else:
-            total_size_in_bytes = min(content_length, max_len)
+            total_size_in_bytes = min(content_length, max_download_len)
 
         total_downloaded = 0
         block_size = 1024 * 1024  # 1 MiB
@@ -164,7 +182,10 @@ class TestSiti:
                 progress_bar.update(len(data))
                 total_downloaded += len(data)
                 local_file.write(data)
-                if max_len is not None and total_downloaded >= max_len:
+                if (
+                    max_download_len is not None
+                    and total_downloaded >= max_download_len
+                ):
                     print(
                         f"Stopping download of {local_path} after {total_downloaded} Bytes"
                     )
@@ -172,7 +193,7 @@ class TestSiti:
         progress_bar.close()
 
     @staticmethod
-    def _download_file_if_needed(input_file: str, max_len: int = None):
+    def _download_file_if_needed(input_file: str, max_download_len: int = None):
         """
         Check if a local file already exists for the given URL; if not, download it
         """
@@ -182,13 +203,15 @@ class TestSiti:
                 os.path.dirname(__file__), "videos", os.path.basename(input_file_path)
             )
             if not os.path.isfile(local_path):
-                TestSiti._try_download_file(input_file, local_path, max_len=max_len)
+                TestSiti._try_download_file(
+                    input_file, local_path, max_download_len=max_download_len
+                )
 
     def test_siti_calculator(
         self,
         input_file: str,
         ground_truth: str,
-        max_len: int,
+        max_download_len: int,
         siti_calculator_kwargs: Dict,
     ):
         """
@@ -196,39 +219,31 @@ class TestSiti:
 
         Args:
             input_file (str): file name of the input file or HTTP(S) path in case of remote video
-            ground_truth (str): file name of ground truth CSV file
-            max_len (int): max length of file to download, in case of remote video
+            ground_truth (str): file name of ground truth JSON file
+            max_download_len (int): max length of file to download, in case of remote video
             siti_calculator_kwargs: any arguments passed to the SiTiCalculator class
         """
-        TestSiti._download_file_if_needed(input_file, max_len)
+        TestSiti._download_file_if_needed(input_file, max_download_len)
 
         ground_truth_path = os.path.join(
             os.path.dirname(__file__), "ground_truth", ground_truth
         )
-        gt = TestSiti._read_ground_truth(ground_truth_path)
+        gt = TestSiti._read_ground_truth_json(ground_truth_path)
 
-        input_file_path = os.path.join(os.path.dirname(__file__), "videos", os.path.basename(input_file))
+        input_file_path = os.path.join(
+            os.path.dirname(__file__), "videos", os.path.basename(input_file)
+        )
         calculator = SiTiCalculator(**siti_calculator_kwargs)
-        si, ti, _ = calculator.calculate(input_file_path)
+        si_values, ti_values, _ = calculator.calculate(input_file_path)
 
-        frame_cnt = 1
+        # we require one more SI value than TI values, since first frame is not defined
+        assert len(si_values) == len(ti_values) + 1
 
-        for siti_results, gt_data in zip(zip_longest(si, ti), gt):
-            print(f"Comparing frame {frame_cnt}")
+        for si_value, si_gt in zip(si_values, gt["si"]):
+            assert pytest.approx(si_value, 0.01) == si_gt
 
-            si_value, ti_value = siti_results
-
-            print(si_value, ti_value)
-            print(gt_data)
-
-            assert pytest.approx(si_value, 0.01) == gt_data["si"]
-
-            if frame_cnt == 1:
-                assert ti_value is None
-            else:
-                assert pytest.approx(ti_value, 0.01) == gt_data["ti"]
-
-            frame_cnt += 1
+        for ti_value, ti_gt in zip(ti_values, gt["ti"]):
+            assert pytest.approx(ti_value, 0.01) == ti_gt
 
     def test_siti_main_functions(self, input_file: str, ground_truth: str):
         """
@@ -238,7 +253,7 @@ class TestSiti:
 
         Args:
             input_file (str): file name of the input file or HTTP(S) path in case of remote video
-            ground_truth (str): file name of ground truth CSV file
+            ground_truth (str): file name of ground truth file
         """
         TestSiti._download_file_if_needed(input_file)
 
@@ -248,7 +263,7 @@ class TestSiti:
         ground_truth_path = os.path.join(
             os.path.dirname(__file__), "ground_truth", ground_truth
         )
-        gt = TestSiti._read_ground_truth(ground_truth_path)
+        gt = TestSiti._read_ground_truth_csv(ground_truth_path)
 
         frame_cnt = 1
 
