@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import os
-from typing import Dict, List, Optional, Tuple, Union, Literal
+from typing import Dict, List, Optional, Tuple, Union
 from scipy import ndimage
 from enum import Enum
 import numpy as np
