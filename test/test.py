@@ -112,12 +112,93 @@ class TestSiti:
             "FourPeople_480x270_60.y4m",
             {
                 "input_file": "https://media.xiph.org/video/aomctc/test_set/a5_270p/FourPeople_480x270_60.y4m",
-                "max_download_len": 10 * 1024 * 1024,  # 10 MiB
                 "ground_truth": "FourPeople_480x270_60.json",
+                "max_download_len": 10 * 1024 * 1024,  # 10 MiB
                 "siti_calculator_kwargs": {
                     "hdr_mode": HdrMode.HDR10,
                     "color_range": ColorRange.FULL,
                 },
+            },
+        ),
+        (
+            "black.y4m",
+            {
+                "input_file": "black.y4m",
+                "ground_truth": "black.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+            },
+        ),
+        (
+            "checkerboard-1x1.y4m",
+            {
+                "input_file": "checkerboard-1x1.y4m",
+                "ground_truth": "checkerboard-1x1.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+            },
+        ),
+        (
+            "checkerboard-8x8.y4m",
+            {
+                "input_file": "checkerboard-8x8.y4m",
+                "ground_truth": "checkerboard-8x8.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+            },
+        ),
+        (
+            "checkerboard.y4m",
+            {
+                "input_file": "checkerboard.y4m",
+                "ground_truth": "checkerboard.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+            },
+        ),
+        (
+            "foreman_cif.y4m",
+            {
+                "input_file": "foreman_cif.y4m",
+                "ground_truth": "foreman_cif.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+            },
+        ),
+        (
+            "full-range.y4m",
+            {
+                "input_file": "full-range.y4m",
+                "ground_truth": "full-range.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+            },
+        ),
+        (
+            "limited-range.y4m",
+            {
+                "input_file": "limited-range.y4m",
+                "ground_truth": "limited-range.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.LIMITED,},
+            },
+        ),
+        (
+            "noise.y4m",
+            {
+                "input_file": "noise.y4m",
+                "ground_truth": "noise.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+            },
+        ),
+        (
+            "white.y4m",
+            {
+                "input_file": "white.y4m",
+                "ground_truth": "white.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
             },
         ),
         # (
