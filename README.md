@@ -80,9 +80,10 @@ The measure of temporal information (TI) is computed as the maximum over time (m
 Run `siti-tools -h` for a list of command line options:
 
 ```
-usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [-v] [-m {sdr,hdr10,hlg}] [-b {8,10,12}]
-                  [-r {limited,full}] [-e {bt1886,inv_srgb}] [-g GAMMA] [--l-max L_MAX]
-                  [--l-min L_MIN]
+usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [-v] [-c {pq,pu21}] [-m {sdr,hdr10,hlg}]
+                  [-b {8,10,12}] [-r {limited,full}] [-e {bt1886,inv_srgb}] [-g GAMMA]
+                  [--l-max L_MAX] [--l-min L_MIN]
+                  [--pu21-mode {banding,banding_glare,peaks,peaks_glare}]
                   input
 
 optional arguments:
@@ -95,6 +96,8 @@ general:
   -n NUM_FRAMES, --num-frames NUM_FRAMES
                         Number of frames to calculate, must be >= 2 (default: unlimited)
   -v, --verbose
+  -c {pq,pu21}, --calculation-domain {pq,pu21}
+                        Select calculation domain (default: pq)
   -m {sdr,hdr10,hlg}, --hdr-mode {sdr,hdr10,hlg}
                         Select HDR mode (default: sdr)
   -b {8,10,12}, --bit-depth {8,10,12}
@@ -112,48 +115,17 @@ Display options:
   --l-max L_MAX         Nominal peak luminance of the display in cd/m2 for achromatic pixels
                         (default: 300 for SDR, 1000.0 for HDR)
   --l-min L_MIN         Display luminance for black in cd/m2 (default: 0.1 for SDR, 0.01 for HDR)
+
+PU21 options:
+  --pu21-mode {banding,banding_glare,peaks,peaks_glare}
+                        Specify mode for PU21 (default: banding)
 ```
 
 ## API Usage
 
-The tools expose the following via an API:
+The tools expose the calculation functions via an API.
 
-- two main functions to calculate SI and TI given an array of frame data (`si` and `ti`)
-- a helper function to calculate SI and TI together (`calculate_si_ti`)
-- helper functions for reading files (`read_container`, `read_file`)
-
-### Combined Calculation
-
-In the simplest case, run:
-
-```python
-from siti_tools.siti import calculate_si_ti
-
-si_values, ti_values, frame_count = calculate_si_ti("/path/to/file.y4m")
-```
-
-You can then access the raw values in the individual variables.
-
-⚠️ The first TI value will always be `None`, since it is not defined.
-
-### Individual Calculation
-
-You can also manually calculate the values.
-
-When calculating TI, make sure to compare against the previous frame data:
-
-```python
-from siti_tools.file import read_container
-from siti_tools.siti import si, ti
-
-previous_frame_data = None
-for frame in read_container("/path/to/file.y4m"):
-    si_value = si(frame)
-    ti_value = ti(frame, previous_frame_data)
-    previous_frame_data = frame
-```
-
-The `read_container` function returns each frame individually and the loop will exit once it's done.
+See the `test/generate_values.py` file for an example of how to use those.
 
 ## Documentation
 
@@ -176,6 +148,12 @@ Install `pytest`:
 
 ```
 pip3 install -r requirements.dev.txt
+```
+
+Generate the sequences:
+
+```bash
+cd test && ./generate_ffmpeg_sources.sh && cd -
 ```
 
 Then run:

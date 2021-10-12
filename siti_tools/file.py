@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 from typing import Generator
 import numpy as np
 import av
@@ -46,13 +45,12 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
         raise RuntimeError("No video streams found!")
 
     for frame in container.decode(video=0):
-        frame_data = (
-            frame.to_ndarray(format="gray")
+        # FIXME: this does not work for 10-bit content!
+        yield (
+            np.frombuffer(frame.planes[0], np.uint8)
+            # FIXME: the below does the "standard" conversion of YUV to grey, using weighting, but it does not actually
+            # use the correct luminance-only Y values, if you want those
+            # frame.to_ndarray(format="gray")
             .reshape(frame.height, frame.width)
             .astype("int")
         )
-
-        if not full_range:
-            # check if we don't actually exceed minimum range
-            frame_data = _convert_range(frame_data)
-        yield frame_data
