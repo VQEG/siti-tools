@@ -1,3 +1,4 @@
+black~=21.10b0
 pytest~=6.2.2
 pdoc~=6.3.2
 requests~=2.25.1
