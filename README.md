@@ -6,17 +6,25 @@ SI/TI calculation tools.
 
 Calculate spatial information (SI) and temporal information (TI) according to ITU-T P.910.
 
+**⚠️ Note: This is the stable branch of the project. For the ongoing VQEG activity related to improving SI/TI, see [the `siti2020` branch](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/tree/siti2020)**.
+
 Contents:
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [What is SI/TI?](#what-is-si-ti)
-- [Usage](#usage)
-- [Documentation](#documentation)
-- [Related Projects](#related-projects)
-- [Acknowledgements](#acknowledgements)
-- [Testing](#testing)
-- [License](#license)
+- [siti-tools](#siti-tools)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [What is SI/TI?](#what-is-siti)
+    - [Spatial Information](#spatial-information)
+    - [Temporal information](#temporal-information)
+  - [Command Line Usage](#command-line-usage)
+  - [API Usage](#api-usage)
+    - [Combined Calculation](#combined-calculation)
+    - [Individual Calculation](#individual-calculation)
+  - [Documentation](#documentation)
+  - [Acknowledgements](#acknowledgements)
+  - [Related Projects](#related-projects)
+  - [Testing](#testing)
+  - [License](#license)
 
 ## Requirements
 
