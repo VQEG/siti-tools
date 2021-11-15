@@ -95,19 +95,24 @@ class TestSiti:
             "foreman_cif",
             {"input_file": "foreman_cif.y4m", "ground_truth": "foreman_cif.csv"},
         ),
-        # add further tests here
+        # Add further tests here, by creating ground truth CSV files. You can use
+        # the ./generate_raw_siti_values.py helper for doing this.
     ]
 
     CALCULATOR_SCENARIOS = [
-        # these require further instantiation via the SiTiCalculator class, with further meta variables
+        # These require further instantiation via the SiTiCalculator class, with further meta variables.
+        # Add your examples like this:
+        #
         # {
-        #     "input_file": "<a URL to a remote file>",
-        #     "max_download_len": <bytes to download>
+        #     "input_file": "<a URL to a remote file, or a filename of a local file in /test/videos/>",
+        #     "max_download_len": <bytes to download, set to None for local files>
         #     "ground_truth": "<name of JSON file with ground truth>",
         #     "siti_calculator_kwargs": {
         #       <any options passed to SiTiCalculator as key-value pair>
         #     },
         # },
+        #
+        #
         (
             "FourPeople_480x270_60.y4m",
             {
@@ -126,7 +131,9 @@ class TestSiti:
                 "input_file": "black.y4m",
                 "ground_truth": "black.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
             },
         ),
         (
@@ -135,7 +142,9 @@ class TestSiti:
                 "input_file": "checkerboard-1x1.y4m",
                 "ground_truth": "checkerboard-1x1.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
             },
         ),
         (
@@ -144,7 +153,33 @@ class TestSiti:
                 "input_file": "checkerboard-8x8.y4m",
                 "ground_truth": "checkerboard-8x8.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
+            },
+        ),
+        (
+            "checkerboard-8x8-10bpp-limited.y4m",
+            {
+                "input_file": "checkerboard-8x8-10bpp-limited.y4m",
+                "ground_truth": "checkerboard-8x8-10bpp-limited.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.LIMITED,
+                    "bit_depth": 10,
+                },
+            },
+        ),
+        (
+            "checkerboard-8x8-10bpp.y4m",
+            {
+                "input_file": "checkerboard-8x8-10bpp.y4m",
+                "ground_truth": "checkerboard-8x8-10bpp.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                    "bit_depth": 10,
+                },
             },
         ),
         (
@@ -153,7 +188,9 @@ class TestSiti:
                 "input_file": "checkerboard.y4m",
                 "ground_truth": "checkerboard.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
             },
         ),
         (
@@ -162,7 +199,9 @@ class TestSiti:
                 "input_file": "foreman_cif.y4m",
                 "ground_truth": "foreman_cif.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
             },
         ),
         (
@@ -171,7 +210,9 @@ class TestSiti:
                 "input_file": "full-range.y4m",
                 "ground_truth": "full-range.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
             },
         ),
         (
@@ -180,7 +221,9 @@ class TestSiti:
                 "input_file": "limited-range.y4m",
                 "ground_truth": "limited-range.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.LIMITED,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.LIMITED,
+                },
             },
         ),
         (
@@ -189,7 +232,9 @@ class TestSiti:
                 "input_file": "noise.y4m",
                 "ground_truth": "noise.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
             },
         ),
         (
@@ -198,7 +243,9 @@ class TestSiti:
                 "input_file": "white.y4m",
                 "ground_truth": "white.json",
                 "max_download_len": None,
-                "siti_calculator_kwargs": {"color_range": ColorRange.FULL,},
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
             },
         ),
         # (

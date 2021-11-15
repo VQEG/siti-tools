@@ -28,13 +28,18 @@ import av
 
 
 def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
-    """Read a multiplexed file via ffmpeg and yield the per-frame Y data
+    """
+    Read a multiplexed file via ffmpeg and yield the per-frame Y data.
+
+    This method tries to be clever determining the bit depth and decoding the
+    data correctly such that content with >8bpp is returned with the full range
+    of values, and not 0-255.
 
     Args:
         input_file (str): Input file path
 
     Raises:
-        RuntimeError: If no video streams were found
+        RuntimeError: If no video streams were found or decoding was not possible
 
     Yields:
         np.ndarray: The frame data, integer
@@ -45,12 +50,26 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
         raise RuntimeError("No video streams found!")
 
     for frame in container.decode(video=0):
-        # FIXME: this does not work for 10-bit content!
-        yield (
-            np.frombuffer(frame.planes[0], np.uint8)
-            # FIXME: the below does the "standard" conversion of YUV to grey, using weighting, but it does not actually
-            # use the correct luminance-only Y values, if you want those
-            # frame.to_ndarray(format="gray")
-            .reshape(frame.height, frame.width)
-            .astype("int")
-        )
+        # FIXME: this has been determined experimentally, not sure if it is the
+        # correct way to do that -- the return values seem correct for a white/black
+        # checkerboard pattern
+        if "p10" in str(frame.format):
+            datatype = np.uint16
+        elif "p12" in str(frame.format):
+            datatype = np.uint16
+        else:
+            datatype = np.uint8
+
+        try:
+            yield (
+                np.frombuffer(frame.planes[0], datatype)
+                # FIXME: the below does the "standard" conversion of YUV to grey,
+                # using weighting, but it does not actually
+                # use the correct luminance-only Y values, if you want those
+                # frame.to_ndarray(format="gray")
+                .reshape(frame.height, frame.width).astype("int")
+            )
+        except ValueError as e:
+            raise RuntimeError(
+                f"Cannot decode frame. Have you specified the bit depth correctly? Original error: {e}"
+            )

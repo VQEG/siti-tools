@@ -23,5 +23,8 @@ ffmpeg -y -f lavfi -i color=white:size=320x240 -f lavfi -i color=black:size=320x
 # checkerboard pattern, 8x8px
 ffmpeg -y -f lavfi -i color=white:size=320x240 -f lavfi -i color=black:size=320x240 -filter_complex "[0:v][1:v]blend=all_expr='if(eq(mod(floor(X/32),2),mod(floor(Y/32),2)),A,B)',signalstats,metadata=print" -frames:v 3 -pix_fmt yuv420p videos/checkerboard-8x8.y4m
 
-# checkerboard pattern, 8x8px, 10-bit (seems to not work with Y4M)
+# checkerboard pattern, 8x8px, 10-bit limited range
+ffmpeg -y -f lavfi -i color=white:size=320x240 -f lavfi -i color=black:size=320x240 -filter_complex "[0:v][1:v]blend=all_expr='if(eq(mod(floor(X/32),2),mod(floor(Y/32),2)),A,B)',signalstats,metadata=print" -frames:v 3 -pix_fmt yuv420p10le -strict -1 videos/checkerboard-8x8-10bpp-limited.y4m
+
+# checkerboard pattern, 8x8px, 10-bit
 ffmpeg -y -f lavfi -i color=white:size=320x240 -f lavfi -i color=black:size=320x240 -filter_complex "[0:v][1:v]blend=all_expr='if(eq(mod(floor(X/32),2),mod(floor(Y/32),2)),A,B)',scale=in_range=limited:out_range=full,signalstats,metadata=print" -frames:v 3 -pix_fmt yuv420p10le -strict -1 videos/checkerboard-8x8-10bpp.y4m

@@ -532,19 +532,20 @@ class SiTiCalculator:
                 # check if we don't actually exceed minimum range
                 input_min = np.min(frame_data)
                 input_max = np.max(frame_data)
-                if (
-                    input_min < self.LIMITED_RANGE_MIN
-                    or input_max > self.LIMITED_RANGE_MAX
+                if (input_min + 0.001 < self.LIMITED_RANGE_MIN) or (
+                    input_max - 0.001 > self.LIMITED_RANGE_MAX
                 ):
                     # inform the user about the original range
                     raise RuntimeError(
-                        "Input appears to be full range, but treated as limited range SDR! "
+                        "Input appears to be full range, but it is treated as limited range SDR! "
                         f"Input range is [{int(self.normalize_to_original_range(input_min))}-{int(self.normalize_to_original_range(input_max))}]. "
+                        f"Expected range for limited content [{int(self.normalize_to_original_range(self.LIMITED_RANGE_MIN))}-{int(self.normalize_to_original_range(self.LIMITED_RANGE_MAX))}]. "
                         "Specify the range as full instead."
                     )
-                frame_data = (frame_data - self.LIMITED_RANGE_MIN) / (
+                # scale up to full range
+                frame_data = np.clip(frame_data - self.LIMITED_RANGE_MIN / (
                     self.LIMITED_RANGE_MAX - self.LIMITED_RANGE_MIN
-                )
+                ), 0, 1)
 
             if self.hdr_mode == HdrMode.SDR:
                 frame_data = SiTiCalculator.apply_display_model(
