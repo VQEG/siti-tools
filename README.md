@@ -6,17 +6,27 @@ SI/TI calculation tools.
 
 Calculate spatial information (SI) and temporal information (TI) according to ITU-T P.910.
 
+**⚠️ Note: This is the development branch of the project. For the stable version, see [the `main` branch](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/tree/main)**.
+
 Contents:
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [What is SI/TI?](#what-is-si-ti)
-- [Usage](#usage)
-- [Documentation](#documentation)
-- [Related Projects](#related-projects)
-- [Acknowledgements](#acknowledgements)
-- [Testing](#testing)
-- [License](#license)
+- [siti-tools](#siti-tools)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Command Line Usage](#command-line-usage)
+    - [Output](#output)
+    - [API Usage](#api-usage)
+  - [Testing](#testing)
+  - [About](#about)
+    - [What is SI/TI?](#what-is-siti)
+      - [Spatial Information](#spatial-information)
+      - [Temporal information](#temporal-information)
+    - [What is the purpose of this activity?](#what-is-the-purpose-of-this-activity)
+    - [Contributors](#contributors)
+    - [Acknowledgements](#acknowledgements)
+    - [Related Projects](#related-projects)
+    - [License](#license)
 
 ## Requirements
 
@@ -38,38 +48,29 @@ Under macOS, it is recommended to install ffmpeg via [Homebrew](https://brew.sh)
 
 Run:
 
-    pip3 install --user siti-tools
+```bash
+pip3 install --user siti-tools
+```
 
 Alternatively, clone this repository and then:
 
-    pip3 install --user .
+```bash
+pip3 install --user .
+```
 
-## What is SI/TI?
+## Usage
 
-The following info is given about SI / TI in ITU-T Recommendation P.910 ("Subjective video quality assessment methods for multimedia applications"):
+### Command Line Usage
 
-### Spatial Information
+After installation, simply run:
 
-> The spatial perceptual information (SI) is based on the Sobel filter. Each video frame (luminance plane) at time n (Fn) is first filtered with the Sobel filter [Sobel(Fn)]. The standard deviation over the pixels (stdspace) in each Sobel-filtered frame is then computed. This operation is repeated for each frame in the video sequence and results in a time series of spatial information of the scene. The maximum value in the time series (maxtime) is chosen to represent the spatial information content of the scene. This process can be represented in equation form as:
+```
+siti-tools /path/to/input/file.mp4
+```
 
-> ![](http://i.imgur.com/zRXcVJO.png)
+to run the tool. It will print JSON output containing info about SI/TI values and other statistics.
 
-### Temporal information
-
-> The temporal perceptual information (TI) is based upon the motion difference feature, Mn(i, j), which is the difference between the pixel values (of the luminance plane) at the same location in space but at successive times or frames. Mn(i, j) as a function of time (n) is defined as:
-
-> ![](http://i.imgur.com/MRsJtdT.png)
-
-> here Fn(i, j) is the pixel at the ith row and jth column of nth frame in time.
-The measure of temporal information (TI) is computed as the maximum over time (maxtime) of the standard deviation over space (stdspace) of Mn(i, j) over all i and j.
-
-> <img src="https://i.imgur.com/XAnKWJw.png" height="19">
-
-> More motion in adjacent frames will result in higher values of TI
-
-## Command Line Usage
-
-Run `siti-tools -h` for a list of command line options:
+Run `siti-tools -h` for a full list of command line options:
 
 ```
 usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [-v] [-c {pq,pu21}] [-m {sdr,hdr10,hlg}]
@@ -113,30 +114,84 @@ PU21 options:
                         Specify mode for PU21 (default: banding)
 ```
 
-## API Usage
+### Output
+
+The tool will output a valid JSON object on `stdout`, with SI and TI scores contained in an array. Note that the first frame has no TI value by definition, so a file with two frames would produce the following output:
+
+```json
+{
+    "si": [
+        4.678114135021466,
+        4.690539260164495
+    ],
+    "ti": [
+        0.33096454208633247
+    ],
+    "settings": {
+        "calculation_domain": "pq",
+        "hdr_mode": "sdr",
+        "bit_depth": 8,
+        "color_range": "full",
+        "eotf_function": "bt1886",
+        "l_max": 300,
+        "l_min": 0.1,
+        "gamma": 2.4,
+        "pu21_mode": "banding",
+        "version": "0.1.2"
+    },
+    "input_file": "FourPeople_480x270_60.y4m"
+}
+```
+
+In the `settings` key, you will find information on how the calculation was done. This is useful for allowing values to be reproduced. You can use these settings for further calculation runs.
+
+### API Usage
 
 The tools expose the calculation functions via an API.
 
-See the `test/generate_values.py` file for an example of how to use those.
+For instance, you can directly use the SI/TI functions:
 
-## Documentation
+```python
+import numpy as np
+from siti_tools.siti import SiTiCalculator  # noqa: E402
 
-To read the API documentation, head to https://telecommunication-telemedia-assessment.github.io/siti-tools/.
+frame_data = ... # some numpy array
+previous_frame_data = ... # some other numpy array
 
-## Acknowledgements
+si_value = SiTiCalculator.si(frame_data)
+ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
+```
 
-If you use this software in your research, please include link to this repository.
+See the `test/generate_raw_siti_values.py` file for an example of how to use those.
 
-## Related Projects
+Or, you can use the calculator class to do the conversions required for higher bit depths and HDR:
 
-- [TelecommunicationTelemediaAssessment/SITI](https://github.com/Telecommunication-Telemedia-Assessment/SITI): Legacy calculations of OpenCV and Python version of SI/TI, values may not necessarily correspond.
-- [NabajeetBarman/SI-TI](https://github.com/NabajeetBarman/SI-TI): MATLAB version of SI/TI calculation, values verified against this repository.
+```python
+import json
+from siti_tools.siti import ColorRange, SiTiCalculator
+
+si_ti_calculator = SiTiCalculator(
+            color_range=ColorRange.LIMITED,
+            # ... other settings go here
+        )
+
+si_ti_calculator.calculate(
+    path_to_input_file,
+    num_frames=3, # only calculate 3 frames
+)
+
+results = si_ti_calculator.get_results()
+
+print(json.dumps(results, indent=4))
+```
+
+See the `siti_tools/__main__.py` file on how to specify all options.
 
 ## Testing
 
 This repo provides a set of test sequences with expected output values that you can verify against.
 
-Install `pytest`:
+First, install the dev dependencies:
 
 ```
 pip3 install -r requirements.dev.txt
@@ -154,12 +209,66 @@ Then run:
 python3 -m pytest test/test.py
 ```
 
-## Contributors
+## About
+
+### What is SI/TI?
+
+The following info is given about SI / TI in ITU-T Recommendation P.910 ("Subjective video quality assessment methods for multimedia applications"):
+
+#### Spatial Information
+
+> The spatial perceptual information (SI) is based on the Sobel filter. Each video frame (luminance plane) at time n (Fn) is first filtered with the Sobel filter [Sobel(Fn)]. The standard deviation over the pixels (stdspace) in each Sobel-filtered frame is then computed. This operation is repeated for each frame in the video sequence and results in a time series of spatial information of the scene. The maximum value in the time series (maxtime) is chosen to represent the spatial information content of the scene. This process can be represented in equation form as:
+
+> ![](http://i.imgur.com/zRXcVJO.png)
+
+#### Temporal information
+
+> The temporal perceptual information (TI) is based upon the motion difference feature, Mn(i, j), which is the difference between the pixel values (of the luminance plane) at the same location in space but at successive times or frames. Mn(i, j) as a function of time (n) is defined as:
+
+> ![](http://i.imgur.com/MRsJtdT.png)
+
+> here Fn(i, j) is the pixel at the ith row and jth column of nth frame in time.
+The measure of temporal information (TI) is computed as the maximum over time (maxtime) of the standard deviation over space (stdspace) of Mn(i, j) over all i and j.
+
+> <img src="https://i.imgur.com/XAnKWJw.png" height="19">
+
+> More motion in adjacent frames will result in higher values of TI
+
+### What is the purpose of this activity?
+
+The [No-Reference Metrics (NORM)](https://www.its.bldrdoc.gov/vqeg/projects/no-reference-metrics-norm.aspx) working group of the [Video Quality Expert Group (VQEG)](https://www.its.bldrdoc.gov/vqeg/vqeg-home.aspx) is currently investigating the Spatial Information (SI) and Temporal Information (TI) indicators defined in ITU-T Rec. P.910.
+
+SI and TI have been frequently used by the community to classify sets of video sequences or video databases, primarily for checking that the used material spans an appropriate range of spatiotemporal complexity before further processing the sequences (e.g., encoding them, presenting them to subjects). Since they are easy and quick to calculate, SI/TI are still very relevant today.
+
+VQEG has identified several limitations with the current definition of SI/TI, including the following:
+
+- It is not specified how to handle video with limited (16-235) vs. full range (0-255).
+- The applicable range of input bit depths (bits per channel) is not specified. This means that it is unclear how to handle content with different bit depths, in particular when comparing sequences of varying bit depth.
+- It is undefined how to handle high dynamic range (HDR) content, where the luminance information might be encoded differently compared to standard dynamic range (SDR).
+
+The overall aims of this activity are the following:
+
+- Providing an updated set of calculation functions for SI and TI that cover limited/full range content, higher bit depths, and HDR sequences
+- Providing a set of test sequences and expected values (i.e., test vectors) in order to allow others to reproduce the results and verify their own implementation
+- Updating the ITU-T Rec. P.910 text to incorporate the new calculation functions
+
+### Contributors
+
+Code contributors:
 
 - Werner Robitza
 - Lukas Krasula
 
-## License
+### Acknowledgements
+
+If you use this software in your research, please include link to this repository.
+
+### Related Projects
+
+- [TelecommunicationTelemediaAssessment/SITI](https://github.com/Telecommunication-Telemedia-Assessment/SITI): Legacy calculations of OpenCV and Python version of SI/TI, values may not necessarily correspond.
+- [NabajeetBarman/SI-TI](https://github.com/NabajeetBarman/SI-TI): MATLAB version of SI/TI calculation, values verified against this repository.
+
+### License
 
 MIT License
 
