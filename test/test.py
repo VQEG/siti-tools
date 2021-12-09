@@ -183,17 +183,6 @@ class TestSiti:
             },
         ),
         (
-            "checkerboard.y4m",
-            {
-                "input_file": "checkerboard.y4m",
-                "ground_truth": "checkerboard.json",
-                "max_download_len": None,
-                "siti_calculator_kwargs": {
-                    "color_range": ColorRange.FULL,
-                },
-            },
-        ),
-        (
             "foreman_cif.y4m",
             {
                 "input_file": "foreman_cif.y4m",
