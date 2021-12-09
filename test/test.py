@@ -120,8 +120,30 @@ class TestSiti:
                 "ground_truth": "FourPeople_480x270_60.json",
                 "max_download_len": 10 * 1024 * 1024,  # 10 MiB
                 "siti_calculator_kwargs": {
-                    "hdr_mode": HdrMode.HDR10,
                     "color_range": ColorRange.FULL,
+                },
+            },
+        ),
+        (
+            "ParkJoy_480x270_50.y4m",
+            {
+                "input_file": "https://media.xiph.org/video/aomctc/test_set/a5_270p/ParkJoy_480x270_50.y4m",
+                "ground_truth": "ParkJoy_480x270_50.json",
+                "max_download_len": 10 * 1024 * 1024,  # 10 MiB
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                },
+            },
+        ),
+        (
+            "SparksElevator_480x270p_5994_10bit.y4m",
+            {
+                "input_file": "https://media.xiph.org/video/aomctc/test_set/a5_270p/SparksElevator_480x270p_5994_10bit.y4m",
+                "ground_truth": "SparksElevator_480x270p_5994_10bit.json",
+                "max_download_len": 10 * 1024 * 1024,  # 10 MiB
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                    "bit_depth": 10,
                 },
             },
         ),
