@@ -84,7 +84,9 @@ def main():
         help="Number of frames to calculate, must be >= 2 (default: unlimited)",
         type=int,
     )
-    group_general.add_argument("-v", "--verbose", action="store_true")
+    group_general.add_argument(
+        "-v", "--verbose", action="store_true", help="Show debug info on stderr"
+    )
     group_general.add_argument(
         "-c",
         "--calculation-domain",
@@ -202,6 +204,7 @@ def main():
             l_min=cli_args.l_min,
             gamma=cli_args.gamma,
             pu21_mode=cli_args.pu21_mode,
+            verbose=cli_args.verbose,
         )
 
     si_ti_calculator.calculate(

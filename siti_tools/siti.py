@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 import os
 from typing import Dict, List, Optional, Tuple, Union
 from scipy import ndimage
@@ -30,6 +31,7 @@ import numpy as np
 
 from .file import read_container
 from . import __version__ as version
+from .log import get_logger
 
 
 class EnumArg(Enum):
@@ -112,6 +114,7 @@ class SiTiCalculator:
         l_min: float = DEFAULT_L_MIN,
         gamma: float = DEFAULT_GAMMA,
         pu21_mode: Pu21Mode = DEFAULT_PU21_MODE,
+        verbose=False,
     ):
         """
         Create a new SI/TI calculator
@@ -127,6 +130,10 @@ class SiTiCalculator:
             gamma (float, optional): Set the BT.1886 gamma. Defaults to 2.4.
             pu21_mode (Pu21Mode, optional): Set the default PU21 mode. Defaults to BANDING.
         """
+        self.verbose = verbose
+        log_level = logging.DEBUG if self.verbose else logging.INFO
+        self.logger = get_logger(level=log_level)
+
         self.hdr_mode = hdr_mode
 
         if bit_depth not in [8, 10, 12]:
@@ -329,7 +336,8 @@ class SiTiCalculator:
         else:
             raise RuntimeError("Unknown EOTF function!")
 
-        return (l_max - l_min) * fn(frame_data, **kwargs) - l_min
+        # return (l_max - l_min) * fn(frame_data, **kwargs) - l_min
+        return fn(frame_data, **kwargs)
 
     @staticmethod
     def oetf_pq(frame_data: np.ndarray) -> np.ndarray:
@@ -342,9 +350,6 @@ class SiTiCalculator:
         Returns:
             frame_data: pixel values in the range [0, 1]
         """
-        frame_data = np.maximum(frame_data, 0.0)
-        frame_data = np.minimum(frame_data, 1.0)
-
         m = 78.84375
         n = 0.1593017578125
         c1 = 0.8359375
@@ -525,7 +530,15 @@ class SiTiCalculator:
         for frame_data in read_container(input_file):
             # Normalize frame data according to bit depth between 0 and 1.
             # This will transform [0, 255] to [0, 1], and [0, 1023] to [0, 1] etc.
+            if current_frame == 0:
+                self.logger.debug("Original frame data")
+                self._log_frame_data(frame_data)
+
             frame_data = self.normalize_between_0_1(frame_data)
+
+            if current_frame == 0:
+                self.logger.debug("Frame data after normalization between 0 and 1")
+                self._log_frame_data(frame_data)
 
             # convert limited to full range
             if self.color_range == ColorRange.LIMITED:
@@ -543,9 +556,15 @@ class SiTiCalculator:
                         "Specify the range as full instead."
                     )
                 # scale up to full range
-                frame_data = np.clip(frame_data - self.LIMITED_RANGE_MIN / (
-                    self.LIMITED_RANGE_MAX - self.LIMITED_RANGE_MIN
-                ), 0, 1)
+                frame_data = np.clip(
+                    (frame_data - self.LIMITED_RANGE_MIN)
+                    / (self.LIMITED_RANGE_MAX - self.LIMITED_RANGE_MIN),
+                    0,
+                    1,
+                )
+                if current_frame == 0:
+                    self.logger.debug("Frame data after limited-range normalization")
+                    self._log_frame_data(frame_data)
 
             if self.hdr_mode == HdrMode.SDR:
                 frame_data = SiTiCalculator.apply_display_model(
@@ -555,24 +574,38 @@ class SiTiCalculator:
                     l_min=self.l_min,
                     gamma=self.gamma,
                 )
-
-                frame_data = self.oetf_function(frame_data, **self.oetf_function_kwargs)
+                if current_frame == 0:
+                    self.logger.debug(f"Frame data after apply_display_model for SDR ({self.l_min}, {self.l_max})")
+                    self._log_frame_data(frame_data)
             elif self.hdr_mode == HdrMode.HDR10:
                 # nothing to do, we are already in PQ domain
                 # TODO allow using Pu21 here?
                 pass
             elif self.hdr_mode == HdrMode.HLG:
                 frame_data = SiTiCalculator.eotf_hlg(frame_data)
-                frame_data = self.oetf_function(frame_data, **self.oetf_function_kwargs)
+                if current_frame == 0:
+                    self.logger.debug("Frame data after eotf_hlg for HLG")
+                    self._log_frame_data(frame_data)
             else:
                 raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
+
+            frame_data = self.oetf_function(frame_data, **self.oetf_function_kwargs)
+
+            if current_frame == 0:
+                self.logger.debug("Frame data after OETF function")
+                self._log_frame_data(frame_data)
 
             si_value = SiTiCalculator.si(frame_data)
             self.si_values.append(self.normalize_to_original_si_range(si_value))
 
+            if current_frame == 0:
+                self.logger.debug(f"SI value {np.around(si_value, 3)}, normalized: {np.around(self.si_values[-1], 3)}")
+
             ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
             if ti_value is not None:
                 self.ti_values.append(self.normalize_to_original_si_range(ti_value))
+                if current_frame == 0:
+                    self.logger.debug(f"TI value {np.around(ti_value, 3)}, normalized: {np.around(self.ti_values[-1], 3)}")
 
             previous_frame_data = frame_data
 
@@ -598,3 +631,8 @@ class SiTiCalculator:
             if self.last_input_file is not None
             else "",
         }
+
+    def _log_frame_data(self, frame_data: np.ndarray):
+        self.logger.debug(
+            f"  [{np.around(np.min(frame_data), 3)}, {np.around(np.max(frame_data), 3)}], mean {np.around(np.mean(frame_data), 3)}, median {np.around(np.median(frame_data), 3)}"
+        )

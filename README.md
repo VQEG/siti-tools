@@ -88,7 +88,7 @@ general:
                         Load settings from previous JSON results file instead of using CLI args
   -n NUM_FRAMES, --num-frames NUM_FRAMES
                         Number of frames to calculate, must be >= 2 (default: unlimited)
-  -v, --verbose
+  -v, --verbose         Show debug info on stderr (default: False)
   -c {pq,pu21}, --calculation-domain {pq,pu21}
                         Select calculation domain (default: pq)
   -m {sdr,hdr10,hlg}, --hdr-mode {sdr,hdr10,hlg}
