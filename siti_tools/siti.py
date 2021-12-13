@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import csv
+import io
 import logging
 import os
 from typing import Dict, List, Optional, Tuple, Union
@@ -615,6 +617,29 @@ class SiTiCalculator:
                 return self.si_values, self.ti_values, current_frame
 
         return self.si_values, self.ti_values, current_frame
+
+    def get_csv_results(self) -> str:
+        """
+        Return a CSV string with the results.
+
+        Note that this does not output all data. Also, the first TI value will be output as "None".
+        """
+        # prepend a zero here
+        ti_values_to_output = [None, *self.ti_values]
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=["input_file", "n", "si", "ti"])
+        writer.writeheader()
+        for idx, (si_value, ti_value) in enumerate(zip(self.si_values, ti_values_to_output)):
+            writer.writerow({
+                "input_file": os.path.basename(self.last_input_file)
+                if self.last_input_file is not None
+                else "",
+                "n": idx + 1,
+                "si": si_value,
+                "ti": ti_value
+            })
+        return output.getvalue()
 
     def get_results(self) -> Dict:
         """

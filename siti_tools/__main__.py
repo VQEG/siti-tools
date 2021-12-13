@@ -66,27 +66,37 @@ class CustomFormatter(
 def main():
     parser = argparse.ArgumentParser(prog="siti-tools", formatter_class=CustomFormatter)
 
-    group_general = parser.add_argument_group("general")
-    group_general.add_argument(
+    group_io = parser.add_argument_group("input/output")
+    group_io.add_argument(
         "input",
         help="Input file, can be Y4M or file in FFmpeg-readable container",
         type=str,
     )
-    group_general.add_argument(
+    group_io.add_argument(
         "-s",
         "--settings",
         help="Load settings from previous JSON results file instead of using CLI args",
         type=str,
     )
-    group_general.add_argument(
+    group_io.add_argument(
         "-n",
         "--num-frames",
         help="Number of frames to calculate, must be >= 2 (default: unlimited)",
         type=int,
     )
-    group_general.add_argument(
+    group_io.add_argument(
+        "-f",
+        "--format",
+        help="Choose the output format (default: json)",
+        type=str,
+        choices=["json", "csv"],
+        default="json"
+    )
+    group_io.add_argument(
         "-v", "--verbose", action="store_true", help="Show debug info on stderr"
     )
+
+    group_general = parser.add_argument_group("video settings")
     group_general.add_argument(
         "-c",
         "--calculation-domain",
@@ -212,10 +222,14 @@ def main():
         num_frames=cli_args.num_frames,
     )
 
-    results = si_ti_calculator.get_results()
-
-    print(json.dumps(results, indent=4))
-
+    if cli_args.format == "json":
+        results = si_ti_calculator.get_results()
+        print(json.dumps(results, indent=4))
+    elif cli_args.format == "csv":
+        results = si_ti_calculator.get_csv_results()
+        print(results)
+    else:
+        raise RuntimeError(f"No such format {cli_args.format}")
 
 if __name__ == "__main__":
     main()
