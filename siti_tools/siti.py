@@ -323,7 +323,7 @@ class SiTiCalculator:
             Other arguments: see calculate()
 
         Returns:
-            frame_data: pixel values in the range [0, 1]
+            frame_data: pixel values in the physical domain.
         """
         if np.min(frame_data) < 0:
             raise RuntimeError("Input for apply_display_model() was < 0")
@@ -339,8 +339,7 @@ class SiTiCalculator:
         else:
             raise RuntimeError("Unknown EOTF function!")
 
-        # return (l_max - l_min) * fn(frame_data, **kwargs) - l_min
-        return fn(frame_data, **kwargs)
+        return (l_max - l_min) * fn(frame_data, **kwargs) + l_min
 
     @staticmethod
     def oetf_pq(frame_data: np.ndarray) -> np.ndarray:
