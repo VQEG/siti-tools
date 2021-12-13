@@ -26,6 +26,7 @@
 
 import argparse
 import json
+from tqdm import tqdm
 from .siti import (
     CalculationDomain,
     ColorRange,
@@ -94,6 +95,9 @@ def main():
     )
     group_io.add_argument(
         "-v", "--verbose", action="store_true", help="Show debug info on stderr"
+    )
+    group_io.add_argument(
+        "-q", "--quiet", action="store_true", help="Do not show progress bar"
     )
 
     group_general = parser.add_argument_group("video settings")
@@ -216,6 +220,13 @@ def main():
             pu21_mode=cli_args.pu21_mode,
             verbose=cli_args.verbose,
         )
+
+    if not cli_args.quiet:
+        pbar = tqdm()
+
+        def frame_callback(_, __, ___):
+            pbar.update(1)
+        si_ti_calculator.add_frame_callback(frame_callback)
 
     si_ti_calculator.calculate(
         cli_args.input,

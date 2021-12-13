@@ -26,7 +26,7 @@ import csv
 import io
 import logging
 import os
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, Callable
 from scipy import ndimage
 from enum import Enum
 import numpy as np
@@ -135,6 +135,7 @@ class SiTiCalculator:
         self.verbose = verbose
         log_level = logging.DEBUG if self.verbose else logging.INFO
         self.logger = get_logger(level=log_level)
+        self.callbacks: List[Callable] = []
 
         self.hdr_mode = hdr_mode
 
@@ -503,6 +504,14 @@ class SiTiCalculator:
         """
         return frame_data / (2 ** self.bit_depth - 1)
 
+    def add_frame_callback(self, callback_fn: Callable[[float, Union[float, None], int], None]):
+        """Add a function that gets called whenever a frame's values are available
+
+        Args:
+            callback_fn (Callable[[float, Union[float, None], int], None]): The function that should get called. It will receive SI, TI and the frame number.
+        """
+        self.callbacks.append(callback_fn)
+
     def calculate(
         self,
         input_file: str,
@@ -614,6 +623,9 @@ class SiTiCalculator:
             previous_frame_data = frame_data
 
             current_frame += 1
+
+            for callback in self.callbacks:
+                callback(si_value, ti_value, current_frame)
 
             if num_frames not in [None, 0] and current_frame >= num_frames:
                 return self.si_values, self.ti_values, current_frame
