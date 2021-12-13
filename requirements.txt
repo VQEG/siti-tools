@@ -2,3 +2,4 @@ numpy~=1.21.0
 scipy~=1.7.2
 av~=8.0.2
 tqdm~=4.62.3
+plotille~=3.8.0

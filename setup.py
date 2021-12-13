@@ -31,7 +31,7 @@ setup(
     url="https://github.com/Telecommunication-Telemedia-Assessment/siti-tools",
     packages=["siti_tools"],
     include_package_data=True,
-    install_requires=["scipy", "numpy", "av", "tqdm"],
+    install_requires=["scipy", "numpy", "av", "tqdm", "plotille"],
     license="MIT",
     zip_safe=False,
     setup_requires=["pytest-runner"],

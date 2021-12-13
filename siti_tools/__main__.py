@@ -97,6 +97,9 @@ def main():
         "-v", "--verbose", action="store_true", help="Show debug info on stderr"
     )
     group_io.add_argument(
+        "--show-histogram", action="store_true", help="Show a histogram for the first frame (computation-intensive, implies --verbose)"
+    )
+    group_io.add_argument(
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
     )
 
@@ -219,6 +222,7 @@ def main():
             gamma=cli_args.gamma,
             pu21_mode=cli_args.pu21_mode,
             verbose=cli_args.verbose,
+            show_histogram=cli_args.show_histogram,
         )
 
     if not cli_args.quiet:

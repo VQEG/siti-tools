@@ -26,6 +26,7 @@ import csv
 import io
 import logging
 import os
+import plotille
 from typing import Dict, List, Optional, Tuple, Union, Callable
 from scipy import ndimage
 from enum import Enum
@@ -117,6 +118,7 @@ class SiTiCalculator:
         gamma: float = DEFAULT_GAMMA,
         pu21_mode: Pu21Mode = DEFAULT_PU21_MODE,
         verbose=False,
+        show_histogram=False,
     ):
         """
         Create a new SI/TI calculator
@@ -131,8 +133,15 @@ class SiTiCalculator:
             l_min (float, optional): Set the black display luminance in cd/m2. Defaults to 0.1 (SDR) or 0.01 (HDR).
             gamma (float, optional): Set the BT.1886 gamma. Defaults to 2.4.
             pu21_mode (Pu21Mode, optional): Set the default PU21 mode. Defaults to BANDING.
+            verbose (bool, optional): Show verbose logging for the first frame.
+            show_histogram (bool, optional): Show a histogram for the first frame (computation-intensive, implies verbose=True).
         """
         self.verbose = verbose
+        self.show_histogram = show_histogram
+
+        if self.show_histogram:
+            self.verbose = True
+
         log_level = logging.DEBUG if self.verbose else logging.INFO
         self.logger = get_logger(level=log_level)
         self.callbacks: List[Callable] = []
@@ -511,6 +520,10 @@ class SiTiCalculator:
         """
         self.callbacks.append(callback_fn)
 
+    @staticmethod
+    def plot_histogram(frame_data: np.ndarray) -> str:
+        return plotille.histogram(frame_data.flatten(), bins=40, width=78, height=25, x_min=0)
+
     def calculate(
         self,
         input_file: str,
@@ -674,3 +687,5 @@ class SiTiCalculator:
         self.logger.debug(
             f"  [{np.around(np.min(frame_data), 3)}, {np.around(np.max(frame_data), 3)}], mean {np.around(np.mean(frame_data), 3)}, median {np.around(np.median(frame_data), 3)}"
         )
+        if self.show_histogram:
+            self.logger.debug("\n" + SiTiCalculator.plot_histogram(frame_data))
