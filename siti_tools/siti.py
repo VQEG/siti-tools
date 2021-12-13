@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import csv
+import io
 import logging
 import os
 from typing import Dict, List, Optional, Tuple, Union
@@ -528,6 +530,8 @@ class SiTiCalculator:
 
         current_frame = 0
         for frame_data in read_container(input_file):
+            self.verbose and self.logger.debug(f"Frame {current_frame+1}")
+
             # Normalize frame data according to bit depth between 0 and 1.
             # This will transform [0, 255] to [0, 1], and [0, 1023] to [0, 1] etc.
             if current_frame == 0:
@@ -615,6 +619,29 @@ class SiTiCalculator:
                 return self.si_values, self.ti_values, current_frame
 
         return self.si_values, self.ti_values, current_frame
+
+    def get_csv_results(self) -> str:
+        """
+        Return a CSV string with the results.
+
+        Note that this does not output all data. Also, the first TI value will be output as "None".
+        """
+        # prepend a zero here
+        ti_values_to_output = [None, *self.ti_values]
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=["input_file", "n", "si", "ti"])
+        writer.writeheader()
+        for idx, (si_value, ti_value) in enumerate(zip(self.si_values, ti_values_to_output)):
+            writer.writerow({
+                "input_file": os.path.basename(self.last_input_file)
+                if self.last_input_file is not None
+                else "",
+                "n": idx + 1,
+                "si": np.round(si_value, 3),
+                "ti": np.round(ti_value, 3)
+            })
+        return output.getvalue()
 
     def get_results(self) -> Dict:
         """
