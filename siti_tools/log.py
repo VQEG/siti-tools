@@ -1,7 +1,7 @@
 import logging
 
 
-class CustomFormatter(logging.Formatter):
+class CustomLogFormatter(logging.Formatter):
     """
     https://stackoverflow.com/a/56944256/435093
     """
@@ -14,9 +14,7 @@ class CustomFormatter(logging.Formatter):
     # strformat = (
     #     "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
     # )
-    strformat = (
-        "%(levelname)s - %(message)s"
-    )
+    strformat = "%(levelname)s - %(message)s"
 
     FORMATS = {
         logging.DEBUG: grey + strformat + reset,
@@ -30,19 +28,3 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
-
-
-def get_logger(level: int = logging.INFO):
-    # create logger with 'spam_application'
-    logger = logging.getLogger("siti")
-    logger.setLevel(level)
-
-    # create console handler with a higher log level
-    ch = logging.StreamHandler()
-    ch.setLevel(level)
-
-    ch.setFormatter(CustomFormatter())
-
-    logger.addHandler(ch)
-
-    return logger

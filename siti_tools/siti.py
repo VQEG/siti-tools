@@ -34,7 +34,8 @@ import numpy as np
 
 from .file import read_container
 from . import __version__ as version
-from .log import get_logger
+
+logger = logging.getLogger("siti")
 
 
 class EnumArg(Enum):
@@ -142,8 +143,6 @@ class SiTiCalculator:
         if self.show_histogram:
             self.verbose = True
 
-        log_level = logging.DEBUG if self.verbose else logging.INFO
-        self.logger = get_logger(level=log_level)
         self.callbacks: List[Callable] = []
 
         self.hdr_mode = hdr_mode
@@ -274,9 +273,9 @@ class SiTiCalculator:
 
         """
         if np.min(frame_data) < 0:
-            print("Warning: Input for eotf_1886() was < 0, truncating")
+            logger.warn("Input for eotf_1886() was < 0, truncating")
         if np.max(frame_data) > 1:
-            print("Warning: Input for eotf_1886() was > 1, truncating")
+            logger.warn("Input for eotf_1886() was > 1, truncating")
 
         frame_data = np.maximum(frame_data, 0.0)
         frame_data = np.minimum(frame_data, 1.0)
@@ -303,9 +302,9 @@ class SiTiCalculator:
 
         """
         if np.min(frame_data) < 0:
-            print("Warning: Input for eotf_inv_srgb() was < 0, truncating")
+            logger.warn("Input for eotf_inv_srgb() was < 0, truncating")
         if np.max(frame_data) > 1:
-            print("Warning: Input for eotf_inv_srgb() was > 1, truncating")
+            logger.warn("Input for eotf_inv_srgb() was > 1, truncating")
 
         frame_data = np.maximum(frame_data, 0.0)
         frame_data = np.minimum(frame_data, 1.0)
@@ -512,7 +511,9 @@ class SiTiCalculator:
         """
         return frame_data / (2 ** self.bit_depth - 1)
 
-    def add_frame_callback(self, callback_fn: Callable[[float, Union[float, None], int], None]):
+    def add_frame_callback(
+        self, callback_fn: Callable[[float, Union[float, None], int], None]
+    ):
         """Add a function that gets called whenever a frame's values are available
 
         Args:
@@ -522,7 +523,9 @@ class SiTiCalculator:
 
     @staticmethod
     def plot_histogram(frame_data: np.ndarray) -> str:
-        return plotille.histogram(frame_data.flatten(), bins=40, width=78, height=25, x_min=0)
+        return plotille.histogram(
+            frame_data.flatten(), bins=40, width=78, height=25, x_min=0
+        )
 
     def calculate(
         self,
@@ -551,18 +554,18 @@ class SiTiCalculator:
 
         current_frame = 0
         for frame_data in read_container(input_file):
-            self.verbose and self.logger.debug(f"Frame {current_frame+1}")
+            self.verbose and logger.debug(f"Frame {current_frame+1}")
 
             # Normalize frame data according to bit depth between 0 and 1.
             # This will transform [0, 255] to [0, 1], and [0, 1023] to [0, 1] etc.
             if current_frame == 0:
-                self.logger.debug("Original frame data")
+                logger.debug("Original frame data")
                 self._log_frame_data(frame_data)
 
             frame_data = self.normalize_between_0_1(frame_data)
 
             if current_frame == 0:
-                self.logger.debug("Frame data after normalization between 0 and 1")
+                logger.debug("Frame data after normalization between 0 and 1")
                 self._log_frame_data(frame_data)
 
             # convert limited to full range
@@ -588,7 +591,7 @@ class SiTiCalculator:
                     1,
                 )
                 if current_frame == 0:
-                    self.logger.debug("Frame data after limited-range normalization")
+                    logger.debug("Frame data after limited-range normalization")
                     self._log_frame_data(frame_data)
 
             if self.hdr_mode == HdrMode.SDR:
@@ -600,7 +603,9 @@ class SiTiCalculator:
                     gamma=self.gamma,
                 )
                 if current_frame == 0:
-                    self.logger.debug(f"Frame data after apply_display_model for SDR ({self.l_min}, {self.l_max})")
+                    logger.debug(
+                        f"Frame data after apply_display_model for SDR ({self.l_min}, {self.l_max})"
+                    )
                     self._log_frame_data(frame_data)
             elif self.hdr_mode == HdrMode.HDR10:
                 # nothing to do, we are already in PQ domain
@@ -609,7 +614,7 @@ class SiTiCalculator:
             elif self.hdr_mode == HdrMode.HLG:
                 frame_data = SiTiCalculator.eotf_hlg(frame_data)
                 if current_frame == 0:
-                    self.logger.debug("Frame data after eotf_hlg for HLG")
+                    logger.debug("Frame data after eotf_hlg for HLG")
                     self._log_frame_data(frame_data)
             else:
                 raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
@@ -617,20 +622,24 @@ class SiTiCalculator:
             frame_data = self.oetf_function(frame_data, **self.oetf_function_kwargs)
 
             if current_frame == 0:
-                self.logger.debug("Frame data after OETF function")
+                logger.debug("Frame data after OETF function")
                 self._log_frame_data(frame_data)
 
             si_value = SiTiCalculator.si(frame_data)
             self.si_values.append(self.normalize_to_original_si_range(si_value))
 
             if current_frame == 0:
-                self.logger.debug(f"SI value {np.around(si_value, 3)}, normalized: {np.around(self.si_values[-1], 3)}")
+                logger.debug(
+                    f"SI value {np.around(si_value, 3)}, normalized: {np.around(self.si_values[-1], 3)}"
+                )
 
             ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
             if ti_value is not None:
                 self.ti_values.append(self.normalize_to_original_si_range(ti_value))
                 if current_frame == 0:
-                    self.logger.debug(f"TI value {np.around(ti_value, 3)}, normalized: {np.around(self.ti_values[-1], 3)}")
+                    logger.debug(
+                        f"TI value {np.around(ti_value, 3)}, normalized: {np.around(self.ti_values[-1], 3)}"
+                    )
 
             previous_frame_data = frame_data
 
@@ -656,15 +665,19 @@ class SiTiCalculator:
         output = io.StringIO()
         writer = csv.DictWriter(output, fieldnames=["input_file", "n", "si", "ti"])
         writer.writeheader()
-        for idx, (si_value, ti_value) in enumerate(zip(self.si_values, ti_values_to_output)):
-            writer.writerow({
-                "input_file": os.path.basename(self.last_input_file)
-                if self.last_input_file is not None
-                else "",
-                "n": idx + 1,
-                "si": np.round(si_value, 3),
-                "ti": np.round(ti_value, 3)
-            })
+        for idx, (si_value, ti_value) in enumerate(
+            zip(self.si_values, ti_values_to_output)
+        ):
+            writer.writerow(
+                {
+                    "input_file": os.path.basename(self.last_input_file)
+                    if self.last_input_file is not None
+                    else "",
+                    "n": idx + 1,
+                    "si": np.round(si_value, 3),
+                    "ti": np.round(ti_value, 3),
+                }
+            )
         return output.getvalue()
 
     def get_results(self) -> Dict:
@@ -684,8 +697,8 @@ class SiTiCalculator:
         }
 
     def _log_frame_data(self, frame_data: np.ndarray):
-        self.logger.debug(
+        logger.debug(
             f"  [{np.around(np.min(frame_data), 3)}, {np.around(np.max(frame_data), 3)}], mean {np.around(np.mean(frame_data), 3)}, median {np.around(np.median(frame_data), 3)}"
         )
         if self.show_histogram:
-            self.logger.debug("\n" + SiTiCalculator.plot_histogram(frame_data))
+            logger.debug("\n" + SiTiCalculator.plot_histogram(frame_data))

@@ -26,7 +26,10 @@
 
 import argparse
 import json
+import logging
+import sys
 from tqdm import tqdm
+from .log import CustomLogFormatter
 from .siti import (
     CalculationDomain,
     ColorRange,
@@ -62,6 +65,20 @@ class CustomFormatter(
                 else:
                     help += " (default: %(default)s)"
         return help
+
+
+def setup_logger(level: int = logging.INFO):
+    logger = logging.getLogger('siti')
+    logger.setLevel(level)
+
+    ch = logging.StreamHandler(sys.stderr)
+    ch.setLevel(level)
+
+    ch.setFormatter(CustomLogFormatter())
+
+    logger.addHandler(ch)
+
+    return logger
 
 
 def main():
@@ -178,6 +195,8 @@ def main():
     )
 
     cli_args = parser.parse_args()
+
+    setup_logger(logging.DEBUG if cli_args.verbose else logging.INFO)
 
     if cli_args.settings:
         # read existing settings from output file

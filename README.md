@@ -68,7 +68,7 @@ After installation, simply run:
 siti-tools /path/to/input/file.mp4
 ```
 
-to run the tool. It will print JSON output containing info about SI/TI values and other statistics.
+to run the tool. It will print JSON output containing info about SI/TI values and other statistics to `stdout`.
 
 Run `siti-tools -h` for a full list of command line options:
 

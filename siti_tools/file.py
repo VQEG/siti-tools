@@ -25,6 +25,9 @@
 from typing import Generator
 import numpy as np
 import av
+import logging
+
+logger = logging.getLogger("siti")
 
 
 def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
