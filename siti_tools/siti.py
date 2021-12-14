@@ -675,7 +675,7 @@ class SiTiCalculator:
                     else "",
                     "n": idx + 1,
                     "si": np.round(si_value, 3),
-                    "ti": np.round(ti_value, 3),
+                    "ti": np.round(ti_value, 3) if ti_value is not None else None,
                 }
             )
         return output.getvalue()
