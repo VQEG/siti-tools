@@ -27,7 +27,7 @@ import io
 import logging
 import os
 import plotille
-from typing import Dict, List, Optional, Tuple, Union, Callable
+from typing import Dict, List, Optional, Tuple, Union, Callable, cast
 from scipy import ndimage
 from enum import Enum
 import numpy as np
@@ -246,7 +246,7 @@ class SiTiCalculator:
         if previous_frame_data is None:
             return None
         else:
-            return (frame_data - previous_frame_data).std()
+            return cast(np.ndarray, frame_data - previous_frame_data).std()
 
     @staticmethod
     def eotf_1886(
@@ -626,7 +626,7 @@ class SiTiCalculator:
                 self._log_frame_data(frame_data)
 
             si_value = SiTiCalculator.si(frame_data)
-            self.si_values.append(self.normalize_to_original_si_range(si_value))
+            self.si_values.append(cast(float, self.normalize_to_original_si_range(si_value)))
 
             if current_frame == 0:
                 logger.debug(
@@ -635,10 +635,10 @@ class SiTiCalculator:
 
             ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
             if ti_value is not None:
-                self.ti_values.append(self.normalize_to_original_si_range(ti_value))
+                self.ti_values.append(cast(float, self.normalize_to_original_si_range(ti_value)))
                 if current_frame == 0:
                     logger.debug(
-                        f"TI value {np.around(ti_value, 3)}, normalized: {np.around(self.ti_values[-1], 3)}"
+                        f"TI value {np.around(ti_value, 3)}, normalized: {np.around(cast(float, self.ti_values[-1]), 3)}"
                     )
 
             previous_frame_data = frame_data
