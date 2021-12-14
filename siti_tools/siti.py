@@ -441,8 +441,9 @@ class SiTiCalculator:
             raise RuntimeError("Invalid mode specified for PU21")
 
         # scale frame_data to the range 0.005 - 10,000
-        frame_data = frame_data * 10000.0
-        frame_data = np.maximum(frame_data, 0.05)
+        # disabled since the input is already in physical luminance
+        # frame_data = frame_data * 10000.0
+        # frame_data = np.maximum(frame_data, 0.05)
 
         frame_data = p[6] * (
             np.power(
