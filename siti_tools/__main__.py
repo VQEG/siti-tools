@@ -103,6 +103,11 @@ def main():
         type=int,
     )
     group_io.add_argument(
+        "--max-frames",
+        help="Overall number of frames, useful for providing better time estimates from the command-line",
+        type=int,
+    )
+    group_io.add_argument(
         "-f",
         "--format",
         help="Choose the output format (default: json)",
@@ -245,7 +250,9 @@ def main():
         )
 
     if not cli_args.quiet:
-        pbar = tqdm()
+        # render the maximum in the progress bar, rather than just an iterator
+        overall_max_frames = max(cli_args.num_frames if cli_args.num_frames is not None else 0, cli_args.max_frames if cli_args.max_frames is not None else 0)
+        pbar = tqdm(total=overall_max_frames if overall_max_frames != 0 else None)
 
         def frame_callback(_, __, ___):
             pbar.update(1)
