@@ -30,8 +30,8 @@ Contents:
 
 ## Requirements
 
-- Python 3.7 or higher
-- FFmpeg libraries (to run `pyav`)
+- Python 3.8 or higher
+- FFmpeg 4.x libraries (to run `pyav`) — this does not work yet with FFmpeg 5.x, see https://github.com/PyAV-Org/PyAV/issues/817
 
 Under Ubuntu, to get ffmpeg libraries:
 
@@ -42,7 +42,8 @@ Under Ubuntu, to get ffmpeg libraries:
 
 Under macOS, it is recommended to install ffmpeg via [Homebrew](https://brew.sh):
 
-    brew install ffmpeg
+    brew install ffmpeg@4
+    export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@4/lib/pkgconfig"
 
 ## Installation
 
