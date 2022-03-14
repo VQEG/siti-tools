@@ -4,29 +4,28 @@
 
 SI/TI calculation tools.
 
-Calculate spatial information (SI) and temporal information (TI) according to ITU-T P.910.
+Calculate spatial information (SI) and temporal information (TI).
 
 **⚠️ Note: This is the development branch of the project. For the stable version, see [the `main` branch](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/tree/main)**.
 
 Contents:
 
-- [siti-tools](#siti-tools)
-  - [Requirements](#requirements)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Command Line Usage](#command-line-usage)
-    - [Output](#output)
-    - [API Usage](#api-usage)
-  - [Testing](#testing)
-  - [About](#about)
-    - [What is SI/TI?](#what-is-siti)
-      - [Spatial Information](#spatial-information)
-      - [Temporal information](#temporal-information)
-    - [What is the purpose of this activity?](#what-is-the-purpose-of-this-activity)
-    - [Contributors](#contributors)
-    - [Acknowledgements](#acknowledgements)
-    - [Related Projects](#related-projects)
-    - [License](#license)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Command Line Usage](#command-line-usage)
+  - [Output](#output)
+  - [API Usage](#api-usage)
+- [Testing](#testing)
+- [About](#about)
+  - [What is SI/TI?](#what-is-siti)
+    - [Spatial Information](#spatial-information)
+    - [Temporal information](#temporal-information)
+  - [What is the purpose of this activity?](#what-is-the-purpose-of-this-activity)
+  - [Contributors](#contributors)
+  - [Acknowledgements](#acknowledgements)
+  - [Related Projects](#related-projects)
+  - [License](#license)
 
 ## Requirements
 
