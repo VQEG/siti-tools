@@ -1,6 +1,15 @@
 # Changelog
 
 
+## v0.1.3 (2022-03-14)
+
+* Add method to specify full range in read_container.
+
+* Link to development branch.
+
+* Update docs.
+
+
 ## v0.1.2 (2021-05-14)
 
 * Add documentation for method.
