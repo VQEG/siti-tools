@@ -646,22 +646,22 @@ class SiTiCalculator:
                         frame_data, **self.oetf_function_kwargs
                     )
                     if current_frame == 0:
-                        logger.debug("Frame data after OETF function")
+                        logger.debug(f"Frame data after OETF function {self.oetf_function} with args {self.oetf_function_kwargs}")
                         self._log_frame_data(frame_data)
                 elif self.hdr_mode == HdrMode.HDR10:
                     # nothing to do, we are already in PQ domain
                     # TODO allow using Pu21 here?
                     pass
                 elif self.hdr_mode == HdrMode.HLG:
-                    frame_data = SiTiCalculator.eotf_hlg(frame_data)
+                    frame_data = SiTiCalculator.eotf_hlg(frame_data, self.l_min, self.l_max)
                     if current_frame == 0:
-                        logger.debug("Frame data after eotf_hlg for HLG")
+                        logger.debug(f"Frame data after eotf_hlg for HLG with l_min/l_max settings {self.l_min, self.l_max}")
                         self._log_frame_data(frame_data)
                     frame_data = self.oetf_function(
                         frame_data, **self.oetf_function_kwargs
                     )
                     if current_frame == 0:
-                        logger.debug("Frame data after OETF function")
+                        logger.debug(f"Frame data after OETF function {self.oetf_function} with args {self.oetf_function_kwargs}")
                         self._log_frame_data(frame_data)
                 else:
                     raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
@@ -678,14 +678,13 @@ class SiTiCalculator:
             else:
                 ti_value = None
 
-            if current_frame == 0:
+            logger.debug(
+                f"SI value {np.around(SiTiCalculator.si(frame_data), 3)}, normalized: {np.around(self.normalize_to_original_si_range(SiTiCalculator.si(frame_data)), 3)}"
+            )
+            if ti_value is not None:
                 logger.debug(
-                    f"SI value {np.around(SiTiCalculator.si(frame_data), 3)}, normalized: {np.around(self.normalize_to_original_si_range(SiTiCalculator.si(frame_data)), 3)}"
+                    f"TI value {np.around(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data)), 3)}, normalized: {np.around(self.normalize_to_original_si_range(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data))), 3)}"
                 )
-                if ti_value is not None:
-                    logger.debug(
-                        f"TI value {np.around(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data)), 3)}, normalized: {np.around(self.normalize_to_original_si_range(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data))), 3)}"
-                    )
 
             self.si_values.append(cast(float, si_value))
             if ti_value is not None:
