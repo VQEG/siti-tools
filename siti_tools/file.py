@@ -33,6 +33,15 @@ class FileFormat(Enum):
     YUV420P = 1
 
 
+def _convert_range(y_data: np.ndarray) -> np.ndarray:
+    # check if we don't actually exceed minimum range
+    if np.min(y_data) < 16 or np.max(y_data) > 235:
+        raise RuntimeError("Input YUV appears to be full range, specify full_range=True!")
+    # convert to grey by assumng limited range input
+    y_data = np.around((y_data - 16) / ((235 - 16) / 255))
+    return y_data
+
+
 def read_yuv(
     input_file: str,
     width: int,
@@ -89,15 +98,12 @@ def read_yuv(
 
             if not full_range:
                 # check if we don't actually exceed minimum range
-                if np.min(y_data) < 16 or np.max(y_data) > 235:
-                    raise RuntimeError("Input YUV appears to be full range, specify full_range=True!")
-                # convert to grey by assumng limited range input
-                y_data = np.around((y_data - 16) / ((235 - 16) / 255))
+                y_data = _convert_range(y_data)
 
             yield y_data
 
 
-def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
+def read_container(input_file: str, full_range=False) -> Generator[np.ndarray, None, None]:
     """Read a multiplexed file via ffmpeg and yield the per-frame Y data
 
     Args:
@@ -120,4 +126,8 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
             .reshape(frame.height, frame.width)
             .astype("int")
         )
+
+        if not full_range:
+            # check if we don't actually exceed minimum range
+            frame_data = _convert_range(frame_data)
         yield frame_data
