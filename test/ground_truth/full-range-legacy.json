@@ -1,0 +1,18 @@
+{
+  "si": [146.56553042206565, 146.74346244055988, 146.95025189484886],
+  "ti": [1.48200040236156, 1.4430011359927237],
+  "settings": {
+    "calculation_domain": "pq",
+    "hdr_mode": "sdr",
+    "bit_depth": 8,
+    "color_range": "full",
+    "eotf_function": "bt1886",
+    "l_max": 300,
+    "l_min": 0.1,
+    "gamma": 2.4,
+    "pu21_mode": "banding",
+    "legacy": true,
+    "version": "0.1.2"
+  },
+  "input_file": "full-range.y4m"
+}

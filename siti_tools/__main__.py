@@ -127,7 +127,7 @@ def main():
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
     )
 
-    group_general = parser.add_argument_group("video settings")
+    group_general = parser.add_argument_group("Video/SI options")
     group_general.add_argument(
         "-c",
         "--calculation-domain",
@@ -159,6 +159,11 @@ def main():
         type=ColorRange,
         choices=list(ColorRange),
         default=SiTiCalculator.DEFAULT_COLOR_RANGE,
+    )
+    group_general.add_argument(
+        "--legacy",
+        help="Use legacy mode, disables all other features except for range adjustment",
+        action="store_true",
     )
 
     group_sdr = parser.add_argument_group("SDR options")
@@ -249,6 +254,7 @@ def main():
             pu21_mode=cli_args.pu21_mode,
             verbose=cli_args.verbose,
             show_histogram=cli_args.show_histogram,
+            legacy=cli_args.legacy,
         )
 
     if not cli_args.quiet:

@@ -1,0 +1,18 @@
+{
+  "si": [146.571, 146.745, 146.96],
+  "ti": [1.482, 1.468],
+  "settings": {
+    "calculation_domain": "pq",
+    "hdr_mode": "sdr",
+    "bit_depth": 8,
+    "color_range": "limited",
+    "eotf_function": "bt1886",
+    "l_max": 300,
+    "l_min": 0.1,
+    "gamma": 2.4,
+    "pu21_mode": "banding",
+    "legacy": true,
+    "version": "0.1.2"
+  },
+  "input_file": "limited-range.y4m"
+}

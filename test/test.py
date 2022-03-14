@@ -238,6 +238,42 @@ class TestSiti:
             },
         ),
         (
+            "legacy foreman_cif.y4m",
+            {
+                "input_file": "foreman_cif.y4m",
+                "ground_truth": "foreman_cif-legacy.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                    "legacy": True,
+                },
+            },
+        ),
+        (
+            "legacy full-range.y4m",
+            {
+                "input_file": "full-range.y4m",
+                "ground_truth": "full-range-legacy.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                    "legacy": True,
+                },
+            },
+        ),
+        (
+            "legacy limited-range.y4m",
+            {
+                "input_file": "limited-range.y4m",
+                "ground_truth": "limited-range-legacy.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.LIMITED,
+                    "legacy": True,
+                },
+            },
+        ),
+        (
             "noise.y4m",
             {
                 "input_file": "noise.y4m",

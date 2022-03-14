@@ -120,6 +120,7 @@ class SiTiCalculator:
         pu21_mode: Pu21Mode = DEFAULT_PU21_MODE,
         verbose=False,
         show_histogram=False,
+        legacy=False,
     ):
         """
         Create a new SI/TI calculator
@@ -136,9 +137,11 @@ class SiTiCalculator:
             pu21_mode (Pu21Mode, optional): Set the default PU21 mode. Defaults to BANDING.
             verbose (bool, optional): Show verbose logging for the first frame.
             show_histogram (bool, optional): Show a histogram for the first frame (computation-intensive, implies verbose=True).
+            legacy (bool, optional): Use legacy SI/TI calculation. Defaults to False.
         """
         self.verbose = verbose
         self.show_histogram = show_histogram
+        self.legacy = legacy
 
         if self.show_histogram:
             self.verbose = True
@@ -191,7 +194,7 @@ class SiTiCalculator:
 
     def get_general_settings(self) -> Dict:
         """
-        A dictionary of settings used for the calculation
+        A dictionary of settings used for the calculation
         """
         return {
             "calculation_domain": str(self.calculation_domain),
@@ -203,6 +206,7 @@ class SiTiCalculator:
             "l_min": self.l_min,
             "gamma": self.gamma,
             "pu21_mode": str(self.pu21_mode),
+            "legacy": self.legacy,
             "version": version,
         }
 
@@ -375,8 +379,7 @@ class SiTiCalculator:
 
     @staticmethod
     def oetf_pu21(
-        frame_data: np.ndarray,
-        mode: Pu21Mode = Pu21Mode.BANDING,
+        frame_data: np.ndarray, mode: Pu21Mode = Pu21Mode.BANDING,
     ) -> np.ndarray:
         """
         PU21 OETF, see https://github.com/gfxdisp/pu21
@@ -522,6 +525,39 @@ class SiTiCalculator:
         """
         self.callbacks.append(callback_fn)
 
+    def handle_limited_range(self, frame_data) -> np.ndarray:
+        """
+        Transforms data from limited range to full range. We expect the input to be in [16/255, 235/255] already.
+        Apply this to limited range content only! If we exceed the limited range, an error will be raised.
+
+        Args:
+            frame_data (np.ndarray): The frame data in limited range.
+
+        Returns:
+            frame_data: The frame data in full range between [0, 1].
+        """
+        input_min = np.min(frame_data)
+        input_max = np.max(frame_data)
+        if (input_min + 0.001 < self.LIMITED_RANGE_MIN) or (
+            input_max - 0.001 > self.LIMITED_RANGE_MAX
+        ):
+            # inform the user about the original range
+            raise RuntimeError(
+                "Input appears to be full range, but it is treated as limited range SDR! "
+                f"Input range is [{int(self.normalize_to_original_range(input_min))}-{int(self.normalize_to_original_range(input_max))}]. "
+                f"Expected range for limited content [{int(self.normalize_to_original_range(self.LIMITED_RANGE_MIN))}-{int(self.normalize_to_original_range(self.LIMITED_RANGE_MAX))}]. "
+                "Specify the range as full instead."
+            )
+        # scale up to full range
+        frame_data = np.clip(
+            (frame_data - self.LIMITED_RANGE_MIN)
+            / (self.LIMITED_RANGE_MAX - self.LIMITED_RANGE_MIN),
+            0,
+            1,
+        )
+
+        return frame_data
+
     @staticmethod
     def plot_histogram(frame_data: np.ndarray) -> str:
         return plotille.histogram(
@@ -529,9 +565,7 @@ class SiTiCalculator:
         )
 
     def calculate(
-        self,
-        input_file: str,
-        num_frames=0,
+        self, input_file: str, num_frames=0,
     ) -> Tuple[List[float], List[Union[float, None]], int]:
         """Calculate SI and TI from an input file.
 
@@ -557,96 +591,105 @@ class SiTiCalculator:
         for frame_data in read_container(input_file):
             self.verbose and logger.debug(f"Frame {current_frame+1}")
 
-            # Normalize frame data according to bit depth between 0 and 1.
-            # This will transform [0, 255] to [0, 1], and [0, 1023] to [0, 1] etc.
             if current_frame == 0:
                 logger.debug("Original frame data")
                 self._log_frame_data(frame_data)
 
-            frame_data = self.normalize_between_0_1(frame_data)
+            # Normalize frame data according to bit depth between 0 and 1.
+            # This will transform [0, 255] to [0, 1], and [0, 1023] to [0, 1] etc.
+            if not self.legacy:
+                frame_data = self.normalize_between_0_1(frame_data)
 
-            if current_frame == 0:
-                logger.debug("Frame data after normalization between 0 and 1")
-                self._log_frame_data(frame_data)
-
-            # convert limited to full range
-            if self.color_range == ColorRange.LIMITED:
-                # check if we don't actually exceed minimum range
-                input_min = np.min(frame_data)
-                input_max = np.max(frame_data)
-                if (input_min + 0.001 < self.LIMITED_RANGE_MIN) or (
-                    input_max - 0.001 > self.LIMITED_RANGE_MAX
-                ):
-                    # inform the user about the original range
-                    raise RuntimeError(
-                        "Input appears to be full range, but it is treated as limited range SDR! "
-                        f"Input range is [{int(self.normalize_to_original_range(input_min))}-{int(self.normalize_to_original_range(input_max))}]. "
-                        f"Expected range for limited content [{int(self.normalize_to_original_range(self.LIMITED_RANGE_MIN))}-{int(self.normalize_to_original_range(self.LIMITED_RANGE_MAX))}]. "
-                        "Specify the range as full instead."
-                    )
-                # scale up to full range
-                frame_data = np.clip(
-                    (frame_data - self.LIMITED_RANGE_MIN)
-                    / (self.LIMITED_RANGE_MAX - self.LIMITED_RANGE_MIN),
-                    0,
-                    1,
-                )
                 if current_frame == 0:
-                    logger.debug("Frame data after limited-range normalization")
+                    logger.debug("Frame data after normalization between 0 and 1")
                     self._log_frame_data(frame_data)
 
-            if self.hdr_mode == HdrMode.SDR:
-                frame_data = SiTiCalculator.apply_display_model(
-                    frame_data,
-                    eotf_function=self.eotf_function,
-                    l_max=self.l_max,
-                    l_min=self.l_min,
-                    gamma=self.gamma,
-                )
-                if current_frame == 0:
-                    logger.debug(
-                        f"Frame data after apply_display_model for SDR ({self.l_min}, {self.l_max})"
-                    )
-                    self._log_frame_data(frame_data)
-                if current_frame == 0:
-                    logger.debug("Frame data after OETF function")
-                    self._log_frame_data(frame_data)
-                frame_data = self.oetf_function(frame_data, **self.oetf_function_kwargs)
-            elif self.hdr_mode == HdrMode.HDR10:
-                # nothing to do, we are already in PQ domain
-                # TODO allow using Pu21 here?
-                pass
-            elif self.hdr_mode == HdrMode.HLG:
-                frame_data = SiTiCalculator.eotf_hlg(frame_data)
-                if current_frame == 0:
-                    logger.debug("Frame data after eotf_hlg for HLG")
-                    self._log_frame_data(frame_data)
-                if current_frame == 0:
-                    logger.debug("Frame data after OETF function")
-                    self._log_frame_data(frame_data)
-                frame_data = self.oetf_function(frame_data, **self.oetf_function_kwargs)
+                # convert limited to full range
+                if self.color_range == ColorRange.LIMITED:
+                    frame_data = self.handle_limited_range(frame_data)
+                    if current_frame == 0:
+                        logger.debug("Frame data after limited-range normalization")
+                        self._log_frame_data(frame_data)
+                else:
+                    # in full range, we do not have to further process the data
+                    pass
             else:
-                raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
+                if self.color_range == ColorRange.LIMITED:
+                    # legacy mode, apply the old way of normalizing data between 16-235
+                    input_min = np.min(frame_data)
+                    input_max = np.max(frame_data)
+                    if input_min < 16 or input_max > 235:
+                        raise RuntimeError(
+                            f"Input appears to be full range ([{input_min}, {input_max}]), specify --color-range=full!"
+                        )
+                    # convert to grey by assumng limited range input
+                    frame_data = np.around((frame_data - 16) / ((235 - 16) / 255))
+                else:
+                    # in full range, we do not have to further process the data
+                    pass
 
-            si_value = SiTiCalculator.si(frame_data)
-            self.si_values.append(
-                cast(float, self.normalize_to_original_si_range(si_value))
-            )
+            if not self.legacy:
+                if self.hdr_mode == HdrMode.SDR:
+                    frame_data = SiTiCalculator.apply_display_model(
+                        frame_data,
+                        eotf_function=self.eotf_function,
+                        l_max=self.l_max,
+                        l_min=self.l_min,
+                        gamma=self.gamma,
+                    )
+                    if current_frame == 0:
+                        logger.debug(
+                            f"Frame data after apply_display_model for SDR ({self.l_min}, {self.l_max})"
+                        )
+                        self._log_frame_data(frame_data)
+                    if current_frame == 0:
+                        logger.debug("Frame data after OETF function")
+                        self._log_frame_data(frame_data)
+                    frame_data = self.oetf_function(
+                        frame_data, **self.oetf_function_kwargs
+                    )
+                elif self.hdr_mode == HdrMode.HDR10:
+                    # nothing to do, we are already in PQ domain
+                    # TODO allow using Pu21 here?
+                    pass
+                elif self.hdr_mode == HdrMode.HLG:
+                    frame_data = SiTiCalculator.eotf_hlg(frame_data)
+                    if current_frame == 0:
+                        logger.debug("Frame data after eotf_hlg for HLG")
+                        self._log_frame_data(frame_data)
+                    if current_frame == 0:
+                        logger.debug("Frame data after OETF function")
+                        self._log_frame_data(frame_data)
+                    frame_data = self.oetf_function(
+                        frame_data, **self.oetf_function_kwargs
+                    )
+                else:
+                    raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
+
+            if not self.legacy:
+                si_value = self.normalize_to_original_si_range(SiTiCalculator.si(frame_data))
+            else:
+                si_value = SiTiCalculator.si(frame_data)
+            if current_frame != 0:
+                if not self.legacy:
+                    ti_value = self.normalize_to_original_si_range(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data)))
+                else:
+                    ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
+            else:
+                ti_value = None
 
             if current_frame == 0:
                 logger.debug(
-                    f"SI value {np.around(si_value, 3)}, normalized: {np.around(self.si_values[-1], 3)}"
+                    f"SI value {np.around(SiTiCalculator.si(frame_data), 3)}, normalized: {np.around(self.normalize_to_original_si_range(SiTiCalculator.si(frame_data)), 3)}"
                 )
-
-            ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
-            if ti_value is not None:
-                self.ti_values.append(
-                    cast(float, self.normalize_to_original_si_range(ti_value))
-                )
-                if current_frame == 0:
+                if ti_value is not None:
                     logger.debug(
-                        f"TI value {np.around(ti_value, 3)}, normalized: {np.around(cast(float, self.ti_values[-1]), 3)}"
+                        f"TI value {np.around(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data)), 3)}, normalized: {np.around(self.normalize_to_original_si_range(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data))), 3)}"
                     )
+
+            self.si_values.append(cast(float, si_value))
+            if ti_value is not None:
+                self.ti_values.append(cast(float, ti_value))
 
             previous_frame_data = frame_data
 

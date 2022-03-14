@@ -104,6 +104,8 @@ video settings:
                         Select bit depth (default: 8)
   -r {limited,full}, --color-range {limited,full}
                         Specify limited or full range (default: limited)
+  --legacy              Use legacy mode, disables all other features except for range adjustment
+                        (default: False)
 
 SDR options:
   -e {bt1886,inv_srgb}, --eotf-function {bt1886,inv_srgb}
@@ -144,6 +146,7 @@ The tool will output a valid JSON object on `stdout`, with SI and TI scores cont
         "l_min": 0.1,
         "gamma": 2.4,
         "pu21_mode": "banding",
+        "legacy": false,
         "version": "0.1.2"
     },
     "input_file": "FourPeople_480x270_60.y4m"
