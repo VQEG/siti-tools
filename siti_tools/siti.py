@@ -629,7 +629,9 @@ class SiTiCalculator:
                 raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
 
             si_value = SiTiCalculator.si(frame_data)
-            self.si_values.append(cast(float, self.normalize_to_original_si_range(si_value)))
+            self.si_values.append(
+                cast(float, self.normalize_to_original_si_range(si_value))
+            )
 
             if current_frame == 0:
                 logger.debug(
@@ -638,7 +640,9 @@ class SiTiCalculator:
 
             ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
             if ti_value is not None:
-                self.ti_values.append(cast(float, self.normalize_to_original_si_range(ti_value)))
+                self.ti_values.append(
+                    cast(float, self.normalize_to_original_si_range(ti_value))
+                )
                 if current_frame == 0:
                     logger.debug(
                         f"TI value {np.around(ti_value, 3)}, normalized: {np.around(cast(float, self.ti_values[-1]), 3)}"

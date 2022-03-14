@@ -68,7 +68,7 @@ class CustomFormatter(
 
 
 def setup_logger(level: int = logging.INFO):
-    logger = logging.getLogger('siti')
+    logger = logging.getLogger("siti")
     logger.setLevel(level)
 
     ch = logging.StreamHandler(sys.stderr)
@@ -113,13 +113,15 @@ def main():
         help="Choose the output format (default: json)",
         type=str,
         choices=["json", "csv"],
-        default="json"
+        default="json",
     )
     group_io.add_argument(
         "-v", "--verbose", action="store_true", help="Show debug info on stderr"
     )
     group_io.add_argument(
-        "--show-histogram", action="store_true", help="Show a histogram for the first frame (computation-intensive, implies --verbose)"
+        "--show-histogram",
+        action="store_true",
+        help="Show a histogram for the first frame (computation-intensive, implies --verbose)",
     )
     group_io.add_argument(
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
@@ -251,11 +253,15 @@ def main():
 
     if not cli_args.quiet:
         # render the maximum in the progress bar, rather than just an iterator
-        overall_max_frames = max(cli_args.num_frames if cli_args.num_frames is not None else 0, cli_args.max_frames if cli_args.max_frames is not None else 0)
+        overall_max_frames = max(
+            cli_args.num_frames if cli_args.num_frames is not None else 0,
+            cli_args.max_frames if cli_args.max_frames is not None else 0,
+        )
         pbar = tqdm(total=overall_max_frames if overall_max_frames != 0 else None)
 
         def frame_callback(_, __, ___):
             pbar.update(1)
+
         si_ti_calculator.add_frame_callback(frame_callback)
 
     si_ti_calculator.calculate(
@@ -271,6 +277,7 @@ def main():
         print(results)
     else:
         raise RuntimeError(f"No such format {cli_args.format}")
+
 
 if __name__ == "__main__":
     main()

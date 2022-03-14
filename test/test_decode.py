@@ -32,8 +32,7 @@ def decode_and_print(input_file, bitdepth=8):
         frame_data = (
             np.frombuffer(frame.planes[0], datatype)
             # useful_array(frame.planes[0])
-            .reshape(frame.height, frame.width)
-            .astype("int")
+            .reshape(frame.height, frame.width).astype("int")
         )
         print(f"frame {idx} -- min: {np.min(frame_data)}, max: {np.max(frame_data)}")
     print()
