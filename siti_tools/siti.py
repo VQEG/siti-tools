@@ -642,12 +642,12 @@ class SiTiCalculator:
                             f"Frame data after apply_display_model for SDR ({self.l_min}, {self.l_max})"
                         )
                         self._log_frame_data(frame_data)
-                    if current_frame == 0:
-                        logger.debug("Frame data after OETF function")
-                        self._log_frame_data(frame_data)
                     frame_data = self.oetf_function(
                         frame_data, **self.oetf_function_kwargs
                     )
+                    if current_frame == 0:
+                        logger.debug("Frame data after OETF function")
+                        self._log_frame_data(frame_data)
                 elif self.hdr_mode == HdrMode.HDR10:
                     # nothing to do, we are already in PQ domain
                     # TODO allow using Pu21 here?
@@ -657,12 +657,12 @@ class SiTiCalculator:
                     if current_frame == 0:
                         logger.debug("Frame data after eotf_hlg for HLG")
                         self._log_frame_data(frame_data)
-                    if current_frame == 0:
-                        logger.debug("Frame data after OETF function")
-                        self._log_frame_data(frame_data)
                     frame_data = self.oetf_function(
                         frame_data, **self.oetf_function_kwargs
                     )
+                    if current_frame == 0:
+                        logger.debug("Frame data after OETF function")
+                        self._log_frame_data(frame_data)
                 else:
                     raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
 
