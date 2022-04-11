@@ -73,10 +73,10 @@ to run the tool. It will print JSON output containing info about SI/TI values an
 Run `siti-tools -h` for a full list of command line options:
 
 ```
-usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [-f {json,csv}] [-v] [--show-histogram] [-q]
-                  [-c {pq,pu21}] [-m {sdr,hdr10,hlg}] [-b {8,10,12}] [-r {limited,full}]
-                  [-e {bt1886,inv_srgb}] [-g GAMMA] [--l-max L_MAX] [--l-min L_MIN]
-                  [--pu21-mode {banding,banding_glare,peaks,peaks_glare}]
+usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [--max-frames MAX_FRAMES] [-f {json,csv}] [-v]
+                  [--show-histogram] [-q] [-c {pq,pu21}] [-m {sdr,hdr10,hlg}] [-b {8,10,12}]
+                  [-r {limited,full}] [--legacy] [-e {bt1886,inv_srgb}] [-g GAMMA] [--l-max L_MAX]
+                  [--l-min L_MIN] [--pu21-mode {banding,banding_glare,peaks,peaks_glare}]
                   input
 
 optional arguments:
@@ -88,6 +88,9 @@ input/output:
                         Load settings from previous JSON results file instead of using CLI args
   -n NUM_FRAMES, --num-frames NUM_FRAMES
                         Number of frames to calculate, must be >= 2 (default: unlimited)
+  --max-frames MAX_FRAMES
+                        Overall number of frames, useful for providing better time estimates from
+                        the command-line
   -f {json,csv}, --format {json,csv}
                         Choose the output format (default: json)
   -v, --verbose         Show debug info on stderr (default: False)
@@ -95,7 +98,7 @@ input/output:
                         --verbose) (default: False)
   -q, --quiet           Do not show progress bar (default: False)
 
-video settings:
+Video/SI options:
   -c {pq,pu21}, --calculation-domain {pq,pu21}
                         Select calculation domain (default: pq)
   -m {sdr,hdr10,hlg}, --hdr-mode {sdr,hdr10,hlg}
