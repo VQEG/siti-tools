@@ -54,7 +54,10 @@ class CustomFormatter(
     def _get_help_string(self, action):
         help = action.help
 
-        if "(default: " in action.help:
+        if help is None:
+            return help
+
+        if "(default: " in help:
             return help
 
         if action.default is not argparse.SUPPRESS:
