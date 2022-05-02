@@ -4,3 +4,4 @@ pdoc~=6.3.2
 requests~=2.25.1
 pystache
 gitchangelog
+pytest-xdist

@@ -1,5 +1,43 @@
 # Licenses for Test Videos
 
+Contents:
+
+- [Overview](#overview)
+- [Live UGC HDR License](#live-ugc-hdr-license)
+
+## Overview
+
 This file lists licenses for the used test videos in this directory.
 
-- `foreman_cif.y4m`: Foreman, unknown license, Center for Image Processing Research, ECSE Dept, Rensselaer Polytechnic Institute, Troy, NY 12180. 
+- `foreman_cif.y4m`: Foreman, unknown license, Center for Image Processing Research, ECSE Dept, Rensselaer Polytechnic Institute, Troy, NY 12180.
+- `fall-hlg.mov`: Fall.MOV, see [LIVE UGC HDR License](#live-ugc-hdr-license).
+- `lights-hlg.mov`: Lights1.MOV, see [LIVE UGC HDR License](#live-ugc-hdr-license).
+- `sunset-hlg.mov`: Sunset1.MOV, see [LIVE UGC HDR License](#live-ugc-hdr-license).
+
+The following licenses apply to clips downloaded on-demand for testing:
+
+- `FourPeople_480x270_60.y4m`: Licensed under public domain.
+- `SparksElevator_480x270p_5994_10bit.y4m`: Extracted from "Sparks", Licensed under Creative Commons Attribution 4.0 International Public License, http://download.opencontent.netflix.com.s3.amazonaws.com/sparks/creative-commons-attribution-4-intl-public-license.txt.
+- `SparksTruck_2048x1080_5994_hdr10.y4m`: Extracted from "Sparks", Licensed under Creative Commons Attribution 4.0 International Public License, http://download.opencontent.netflix.com.s3.amazonaws.com/sparks/creative-commons-attribution-4-intl-public-license.txt.
+
+## Live UGC HDR License
+
+Sources have been used from the LIVE UGC HDR database.
+
+A. K. Venkataramanan, S. Quiroz and A. C. Bovik, "LIVE User Generated High Dynamic Range Database", https://live.ece.utexas.edu/research/LIVE_UGC_HDR/index.html, 2022
+
+Copyright (c) 2022 The University of Texas at Austin
+
+All rights reserved.
+
+Permission is hereby granted, without written agreement and without license or royalty fees, to use, copy, modify, and distribute this database (the videos) and its documentation for any purpose, provided that the copyright notice in its entirety appear in all copies of this database, and the original source of this database, Laboratory for Image and Video Engineering (LIVE, http://live.ece.utexas.edu ) at the University of Texas at Austin (UT Austin, http://www.utexas.edu ), is acknowledged in any publication that reports research using this database.
+
+The database is to be cited in the bibliography whenever it is used as:
+
+A. K. Venkataramanan, S. Quiroz and A. C. Bovik, "LIVE User-Generated High Dynamic Range Database", https://live.ece.utexas.edu/research/LIVE_UGC_HDR/index.html, 2022
+
+IN NO EVENT SHALL THE UNIVERSITY OF TEXAS AT AUSTIN BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THIS DATABASE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF TEXAS AT AUSTIN HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+THE UNIVERSITY OF TEXAS AT AUSTIN SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE DATABASE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF TEXAS AT AUSTIN HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+All videos were filmed by amateur smartphone users who have graciously transferred the copyright of the videos to the authors.

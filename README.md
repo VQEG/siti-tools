@@ -14,6 +14,7 @@ Contents:
 - [Installation](#installation)
 - [Usage](#usage)
   - [Command Line Usage](#command-line-usage)
+  - [Detailed Options](#detailed-options)
   - [Output](#output)
   - [API Usage](#api-usage)
 - [Testing](#testing)
@@ -46,13 +47,7 @@ Under macOS, it is recommended to install ffmpeg via [Homebrew](https://brew.sh)
 
 ## Installation
 
-Run:
-
-```bash
-pip3 install --user siti-tools
-```
-
-Alternatively, clone this repository and then:
+Clone this repository and then:
 
 ```bash
 pip3 install --user .
@@ -69,6 +64,25 @@ siti-tools /path/to/input/file.mp4
 ```
 
 to run the tool. It will print JSON output containing info about SI/TI values and other statistics to `stdout`.
+
+This tool does not automatically handle input that is not 8-bit SDR content. To deal with HDR and > 8-bit, you can choose the HDR mode and bit depth:
+
+```
+siti-tools /path/to/input/file-HLG.mov --hdr-mode hlg --bit-depth 10
+siti-tools /path/to/input/file-HDR10.mp4 --hdr-mode hdr10 --bit-depth 10
+```
+
+You can further tune the HDR parameters (see next section).
+
+Additionally, if your input has full range values (0–255) instead of limited range (16–235), you must specify the following flag:
+
+```
+siti-tools /path/to/input/file.mp4 --color-range full
+```
+
+This ensures that the values are properly scaled.
+
+### Detailed Options
 
 Run `siti-tools -h` for a full list of command line options:
 
@@ -156,7 +170,12 @@ The tool will output a valid JSON object on `stdout`, with SI and TI scores cont
 }
 ```
 
-In the `settings` key, you will find information on how the calculation was done. This is useful for allowing values to be reproduced. You can use these settings for further calculation runs.
+In the `settings` key, you will find information on how the calculation was done. This is useful for allowing values to be reproduced. You can use these settings for further calculation runs. For instance, if you want to use the settings used for `input1` for `input2`, run the following:
+
+```
+siti-tools input1.mp4 > input1.json
+siti-tools input2.mp4 --settings input1.json > input2.json
+```
 
 ### API Usage
 
@@ -219,8 +238,10 @@ cd test && ./generate_ffmpeg_sources.sh && cd -
 Then run:
 
 ```bash
-python3 -m pytest test/test.py
+python3 -m pytest test/test.py -n auto
 ```
+
+The `-n auto` flag distributes the test to all cores. Remove it if you want to capture stdout with `-s`.
 
 ## About
 

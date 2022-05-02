@@ -1,0 +1,29 @@
+{
+    "si": [
+        8.498430920800487,
+        8.321574730146757,
+        8.408620911280588,
+        8.276614669711085,
+        8.502094759638036
+    ],
+    "ti": [
+        0.885369996432793,
+        0.8380038034866518,
+        0.840396082605608,
+        0.8602735745148169
+    ],
+    "settings": {
+        "calculation_domain": "pq",
+        "hdr_mode": "hlg",
+        "bit_depth": 10,
+        "color_range": "full",
+        "eotf_function": "bt1886",
+        "l_max": 1000.0,
+        "l_min": 0.01,
+        "gamma": 2.4,
+        "pu21_mode": "banding",
+        "legacy": false,
+        "version": "0.1.3"
+    },
+    "input_file": "lights-hlg.mov"
+}

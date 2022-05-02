@@ -26,7 +26,7 @@
 
 import sys
 import os
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 from numpy import NaN
 import pytest
 import requests
@@ -144,6 +144,19 @@ class TestSiti:
                 "siti_calculator_kwargs": {
                     "color_range": ColorRange.FULL,
                     "bit_depth": 10,
+                },
+            },
+        ),
+        (
+            "SparksTruck_2048x1080_5994_hdr10.y4m",
+            {
+                "input_file": "https://media.xiph.org/video/aomctc/test_set/hdr2_2k/SparksTruck_2048x1080_5994_hdr10.y4m",
+                "ground_truth": "SparksTruck_2048x1080_5994_hdr10.json",
+                "max_download_len": 50 * 1024 * 1024,  # 50 MiB, should be ~7 frames
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                    "bit_depth": 10,
+                    "hdr_mode": HdrMode.HDR10,
                 },
             },
         ),
@@ -295,6 +308,45 @@ class TestSiti:
                 },
             },
         ),
+        (
+            "sunset-hlg.mov",
+            {
+                "input_file": "sunset-hlg.mov",
+                "ground_truth": "sunset-hlg.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                    "hdr_mode": HdrMode.HLG,
+                    "bit_depth": 10,
+                },
+            },
+        ),
+        (
+            "lights-hlg.mov",
+            {
+                "input_file": "lights-hlg.mov",
+                "ground_truth": "lights-hlg.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                    "hdr_mode": HdrMode.HLG,
+                    "bit_depth": 10,
+                },
+            },
+        ),
+        (
+            "fall-hlg.mov",
+            {
+                "input_file": "fall-hlg.mov",
+                "ground_truth": "fall-hlg.json",
+                "max_download_len": None,
+                "siti_calculator_kwargs": {
+                    "color_range": ColorRange.FULL,
+                    "hdr_mode": HdrMode.HLG,
+                    "bit_depth": 10,
+                },
+            },
+        ),
         # (
         #     "CosmosCaterpillar_2048x858p24_hdr10",
         #     {
@@ -331,7 +383,7 @@ class TestSiti:
 
     @staticmethod
     def _try_download_file(
-        remote_path: str, local_path: str, max_download_len: int = None
+        remote_path: str, local_path: str, max_download_len: Union[int, None] = None
     ):
         """Download a remote file via HTTP/S
 
@@ -368,7 +420,7 @@ class TestSiti:
         progress_bar.close()
 
     @staticmethod
-    def _download_file_if_needed(input_file: str, max_download_len: int = None):
+    def _download_file_if_needed(input_file: str, max_download_len: Union[int, None] = None):
         """
         Check if a local file already exists for the given URL; if not, download it
         """
@@ -406,6 +458,8 @@ class TestSiti:
             os.path.dirname(__file__), "ground_truth", ground_truth
         )
         gt = TestSiti._read_ground_truth_json(ground_truth_path)
+
+        print(f"Ground truth: {gt}")
 
         input_file_path = os.path.join(
             os.path.dirname(__file__), "videos", os.path.basename(input_file)
