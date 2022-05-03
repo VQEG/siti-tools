@@ -260,7 +260,7 @@ class SiTiCalculator:
         l_max: float = 1.0,
     ) -> np.ndarray:
         """
-        Electro-optical transfer function defined in ITU-T Rec. BT.1886
+        Electro-optical transfer function defined in ITU-R Rec. BT.1886
 
         Args:
             frame_data: pixel values expected in the range [0, 1]
@@ -356,7 +356,7 @@ class SiTiCalculator:
     @staticmethod
     def oetf_pq(frame_data: np.ndarray) -> np.ndarray:
         """
-        Perceptual quantizer opto-electrical transfer function defined in ITU-T Rec. BT.2100
+        Perceptual quantizer opto-electrical transfer function defined in ITU-R Rec. BT.2100
 
         Args:
             frame_data: pixel values expected to be in the physical luminance between 0 and 10,000 cd/m^2
