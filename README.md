@@ -1,30 +1,29 @@
 # siti-tools
 
-[![Python package](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/actions/workflows/python-package.yml/badge.svg)](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/actions/workflows/python-package.yml)
+[![Python package](https://github.com/VQEG/siti-tools/actions/workflows/python-package.yml/badge.svg)](https://github.com/VQEG/siti-tools/actions/workflows/python-package.yml)
 
 SI/TI calculation tools.
 
 Calculate spatial information (SI) and temporal information (TI) according to ITU-T P.910.
 
-**⚠️ Note: This is the stable branch of the project. For the ongoing VQEG activity related to improving SI/TI, see [the `siti2020` branch](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/tree/siti2020)**.
+**⚠️ Note: This is the legacy branch of the project. For the ongoing VQEG activity related to improving SI/TI, see [the `main` branch](https://github.com/VQEG/siti-tools/tree/main)**.
 
 Contents:
 
-- [siti-tools](#siti-tools)
-  - [Requirements](#requirements)
-  - [Installation](#installation)
-  - [What is SI/TI?](#what-is-siti)
-    - [Spatial Information](#spatial-information)
-    - [Temporal information](#temporal-information)
-  - [Command Line Usage](#command-line-usage)
-  - [API Usage](#api-usage)
-    - [Combined Calculation](#combined-calculation)
-    - [Individual Calculation](#individual-calculation)
-  - [Documentation](#documentation)
-  - [Acknowledgements](#acknowledgements)
-  - [Related Projects](#related-projects)
-  - [Testing](#testing)
-  - [License](#license)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [What is SI/TI?](#what-is-siti)
+  - [Spatial Information](#spatial-information)
+  - [Temporal information](#temporal-information)
+- [Command Line Usage](#command-line-usage)
+- [API Usage](#api-usage)
+  - [Combined Calculation](#combined-calculation)
+  - [Individual Calculation](#individual-calculation)
+- [Documentation](#documentation)
+- [Acknowledgements](#acknowledgements)
+- [Related Projects](#related-projects)
+- [Testing](#testing)
+- [License](#license)
 
 ## Requirements
 
