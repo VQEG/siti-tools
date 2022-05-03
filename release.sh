@@ -6,7 +6,7 @@ VERSION_FILE="siti_tools/__init__.py"
 VERSION_FILE_2="pyproject.toml"
 
 # run checks
-for package in pypandoc twine wheel gitchangelog pdoc; do
+for package in pypandoc twine wheel gitchangelog pypandoc pdoc; do
     python -c "import ${package}" || { echo >&2 "${package} is not installed. Install via pip!"; exit 1; }
 done
 
