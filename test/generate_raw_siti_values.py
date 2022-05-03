@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+#
+# Generate raw SI/TI values without any conversions
 
 import sys
 import os
@@ -6,7 +8,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from siti_tools.file import read_container  # noqa: E402
-from siti_tools.siti import si, ti  # noqa: E402
+from siti_tools.siti import SiTiCalculator  # noqa: E402
 
 
 def main():
@@ -16,8 +18,8 @@ def main():
 
     print("si,ti,n")
     for frame_data in frame_generator:
-        si_value = si(frame_data)
-        ti_value = ti(frame_data, previous_frame_data)
+        si_value = SiTiCalculator.si(frame_data)
+        ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
 
         if ti_value is None:
             ti_value = ""

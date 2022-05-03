@@ -1,0 +1,24 @@
+{
+    "si": [
+        90.88786924022064,
+        91.43357790565614,
+        90.97558019200109
+    ],
+    "ti": [
+        57.70490247870884,
+        57.58617700724035
+    ],
+    "settings": {
+        "calculation_domain": "pq",
+        "hdr_mode": "sdr",
+        "bit_depth": 8,
+        "color_range": "full",
+        "eotf_function": "bt1886",
+        "l_max": 300,
+        "l_min": 0.1,
+        "gamma": 2.4,
+        "pu21_mode": "banding",
+        "version": "0.1.2"
+    },
+    "input_file": "noise.y4m"
+}

@@ -1,0 +1,24 @@
+{
+    "si": [
+        178.50055531682995,
+        178.50055531682995,
+        178.50055531682995
+    ],
+    "ti": [
+        0.0,
+        0.0
+    ],
+    "settings": {
+        "calculation_domain": "pq",
+        "hdr_mode": "sdr",
+        "bit_depth": 10,
+        "color_range": "full",
+        "eotf_function": "bt1886",
+        "l_max": 300,
+        "l_min": 0.1,
+        "gamma": 2.4,
+        "pu21_mode": "banding",
+        "version": "0.1.2"
+    },
+    "input_file": "checkerboard-8x8-10bpp.y4m"
+}

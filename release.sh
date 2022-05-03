@@ -3,6 +3,7 @@
 
 # define the file containing the version here
 VERSION_FILE="siti_tools/__init__.py"
+VERSION_FILE_2="pyproject.toml"
 
 # run checks
 for package in pypandoc twine wheel gitchangelog pdoc; do
@@ -34,8 +35,10 @@ echo "Will set new version to be $INPUT_STRING"
 
 # replace the python version
 perl -pi -e "s/\Q$BASE_STRING\E/$INPUT_STRING/" "$VERSION_FILE"
+perl -pi -e "s/\Q$BASE_STRING\E/$INPUT_STRING/" "$VERSION_FILE_2"
 
 git add "$VERSION_FILE"
+git add "$VERSION_FILE_2"
 
 # bump initially but to not push yet
 git commit -m "Bump version to ${INPUT_STRING}."

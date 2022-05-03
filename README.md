@@ -4,31 +4,34 @@
 
 SI/TI calculation tools.
 
-Calculate spatial information (SI) and temporal information (TI) according to ITU-T P.910.
+Calculate spatial information (SI) and temporal information (TI).
 
-**⚠️ Note: This is the stable branch of the project. For the ongoing VQEG activity related to improving SI/TI, see [the `siti2020` branch](https://github.com/VQEG/siti-tools/tree/siti2020)**.
+**⚠️ Note: This is the main branch of the project. For the legacy version of SI/TI, see [the `legacy` branch](https://github.com/VQEG/siti-tools/tree/legacy)**.
 
 Contents:
 
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [What is SI/TI?](#what-is-siti)
-  - [Spatial Information](#spatial-information)
-  - [Temporal information](#temporal-information)
-- [Command Line Usage](#command-line-usage)
-- [API Usage](#api-usage)
-  - [Combined Calculation](#combined-calculation)
-  - [Individual Calculation](#individual-calculation)
-- [Documentation](#documentation)
-- [Acknowledgements](#acknowledgements)
-- [Related Projects](#related-projects)
+- [Usage](#usage)
+  - [Command Line Usage](#command-line-usage)
+  - [Detailed Options](#detailed-options)
+  - [Output](#output)
+  - [API Usage](#api-usage)
 - [Testing](#testing)
-- [License](#license)
+- [About](#about)
+  - [What is SI/TI?](#what-is-siti)
+    - [Spatial Information](#spatial-information)
+    - [Temporal information](#temporal-information)
+  - [What is the purpose of this activity?](#what-is-the-purpose-of-this-activity)
+  - [Contributors](#contributors)
+  - [Acknowledgements](#acknowledgements)
+  - [Related Projects](#related-projects)
+  - [License](#license)
 
 ## Requirements
 
-- Python 3.7 or higher
-- FFmpeg libraries (to run `pyav`)
+- Python 3.8 or higher
+- FFmpeg 4.x libraries (to run `pyav`) — this does not work yet with FFmpeg 5.x, see https://github.com/PyAV-Org/PyAV/issues/817
 
 Under Ubuntu, to get ffmpeg libraries:
 
@@ -39,29 +42,220 @@ Under Ubuntu, to get ffmpeg libraries:
 
 Under macOS, it is recommended to install ffmpeg via [Homebrew](https://brew.sh):
 
-    brew install ffmpeg
+    brew install ffmpeg@4
+    export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@4/lib/pkgconfig"
 
 ## Installation
 
-Run:
+Clone this repository and then:
 
-    pip3 install --user siti-tools
+```bash
+pip3 install --user .
+```
 
-Alternatively, clone this repository and then:
+## Usage
 
-    pip3 install --user .
+### Command Line Usage
 
-## What is SI/TI?
+After installation, simply run:
+
+```
+siti-tools /path/to/input/file.mp4
+```
+
+to run the tool. It will print JSON output containing info about SI/TI values and other statistics to `stdout`.
+
+This tool does not automatically handle input that is not 8-bit SDR content. To deal with HDR and > 8-bit, you can choose the HDR mode and bit depth:
+
+```
+siti-tools /path/to/input/file-HLG.mov --hdr-mode hlg --bit-depth 10
+siti-tools /path/to/input/file-HDR10.mp4 --hdr-mode hdr10 --bit-depth 10
+```
+
+You can further tune the HDR parameters (see next section).
+
+Additionally, if your input has full range values (0–255) instead of limited range (16–235), you must specify the following flag:
+
+```
+siti-tools /path/to/input/file.mp4 --color-range full
+```
+
+This ensures that the values are properly scaled.
+
+### Detailed Options
+
+Run `siti-tools -h` for a full list of command line options:
+
+```
+usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [--max-frames MAX_FRAMES] [-f {json,csv}] [-v]
+                  [--show-histogram] [-q] [-c {pq,pu21}] [-m {sdr,hdr10,hlg}] [-b {8,10,12}]
+                  [-r {limited,full}] [--legacy] [-e {bt1886,inv_srgb}] [-g GAMMA] [--l-max L_MAX]
+                  [--l-min L_MIN] [--pu21-mode {banding,banding_glare,peaks,peaks_glare}]
+                  input
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+input/output:
+  input                 Input file, can be Y4M or file in FFmpeg-readable container
+  -s SETTINGS, --settings SETTINGS
+                        Load settings from previous JSON results file instead of using CLI args
+  -n NUM_FRAMES, --num-frames NUM_FRAMES
+                        Number of frames to calculate, must be >= 2 (default: unlimited)
+  --max-frames MAX_FRAMES
+                        Overall number of frames, useful for providing better time estimates from
+                        the command-line
+  -f {json,csv}, --format {json,csv}
+                        Choose the output format (default: json)
+  -v, --verbose         Show debug info on stderr (default: False)
+  --show-histogram      Show a histogram for the first frame (computation-intensive, implies
+                        --verbose) (default: False)
+  -q, --quiet           Do not show progress bar (default: False)
+
+Video/SI options:
+  -c {pq,pu21}, --calculation-domain {pq,pu21}
+                        Select calculation domain (default: pq)
+  -m {sdr,hdr10,hlg}, --hdr-mode {sdr,hdr10,hlg}
+                        Select HDR mode (default: sdr)
+  -b {8,10,12}, --bit-depth {8,10,12}
+                        Select bit depth (default: 8)
+  -r {limited,full}, --color-range {limited,full}
+                        Specify limited or full range (default: limited)
+  --legacy              Use legacy mode, disables all other features except for range adjustment
+                        (default: False)
+
+SDR options:
+  -e {bt1886,inv_srgb}, --eotf-function {bt1886,inv_srgb}
+                        Specify the EOTF function for converting SDR to HDR (default: bt1886)
+  -g GAMMA, --gamma GAMMA
+                        Specify gamma for BT.1886 function (default: 2.4)
+
+Display options:
+  --l-max L_MAX         Nominal peak luminance of the display in cd/m2 for achromatic pixels
+                        (default: 300 for SDR, 1000.0 for HDR)
+  --l-min L_MIN         Display luminance for black in cd/m2 (default: 0.1 for SDR, 0.01 for HDR)
+
+PU21 options:
+  --pu21-mode {banding,banding_glare,peaks,peaks_glare}
+                        Specify mode for PU21 (default: banding)
+```
+
+### Output
+
+The tool will output a valid JSON object on `stdout`, with SI and TI scores contained in an array. Note that the first frame has no TI value by definition, so a file with two frames would produce the following output:
+
+```json
+{
+    "si": [
+        4.678114135021466,
+        4.690539260164495
+    ],
+    "ti": [
+        0.33096454208633247
+    ],
+    "settings": {
+        "calculation_domain": "pq",
+        "hdr_mode": "sdr",
+        "bit_depth": 8,
+        "color_range": "full",
+        "eotf_function": "bt1886",
+        "l_max": 300,
+        "l_min": 0.1,
+        "gamma": 2.4,
+        "pu21_mode": "banding",
+        "legacy": false,
+        "version": "0.1.2"
+    },
+    "input_file": "FourPeople_480x270_60.y4m"
+}
+```
+
+In the `settings` key, you will find information on how the calculation was done. This is useful for allowing values to be reproduced. You can use these settings for further calculation runs. For instance, if you want to use the settings used for `input1` for `input2`, run the following:
+
+```
+siti-tools input1.mp4 > input1.json
+siti-tools input2.mp4 --settings input1.json > input2.json
+```
+
+### API Usage
+
+The tools expose the calculation functions via an API.
+
+For instance, you can directly use the SI/TI functions:
+
+```python
+import numpy as np
+from siti_tools.siti import SiTiCalculator  # noqa: E402
+
+frame_data = ... # some numpy array
+previous_frame_data = ... # some other numpy array
+
+si_value = SiTiCalculator.si(frame_data)
+ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
+```
+
+See the `test/generate_raw_siti_values.py` file for an example of how to use those.
+
+Or, you can use the calculator class to do the conversions required for higher bit depths and HDR:
+
+```python
+import json
+from siti_tools.siti import ColorRange, SiTiCalculator
+
+si_ti_calculator = SiTiCalculator(
+            color_range=ColorRange.LIMITED,
+            # ... other settings go here
+        )
+
+si_ti_calculator.calculate(
+    path_to_input_file,
+    num_frames=3, # only calculate 3 frames
+)
+
+results = si_ti_calculator.get_results()
+
+print(json.dumps(results, indent=4))
+```
+
+See the `siti_tools/__main__.py` file on how to specify all options.
+
+## Testing
+
+This repo provides a set of test sequences with expected output values that you can verify against.
+
+First, install the dev dependencies:
+
+```
+pip3 install -r requirements.dev.txt
+```
+
+Generate the sequences:
+
+```bash
+cd test && ./generate_ffmpeg_sources.sh && cd -
+```
+
+Then run:
+
+```bash
+python3 -m pytest test/test.py -n auto
+```
+
+The `-n auto` flag distributes the test to all cores. Remove it if you want to capture stdout with `-s`.
+
+## About
+
+### What is SI/TI?
 
 The following info is given about SI / TI in ITU-T Recommendation P.910 ("Subjective video quality assessment methods for multimedia applications"):
 
-### Spatial Information
+#### Spatial Information
 
 > The spatial perceptual information (SI) is based on the Sobel filter. Each video frame (luminance plane) at time n (Fn) is first filtered with the Sobel filter [Sobel(Fn)]. The standard deviation over the pixels (stdspace) in each Sobel-filtered frame is then computed. This operation is repeated for each frame in the video sequence and results in a time series of spatial information of the scene. The maximum value in the time series (maxtime) is chosen to represent the spatial information content of the scene. This process can be represented in equation form as:
 
 > ![](http://i.imgur.com/zRXcVJO.png)
 
-### Temporal information
+#### Temporal information
 
 > The temporal perceptual information (TI) is based upon the motion difference feature, Mn(i, j), which is the difference between the pixel values (of the luminance plane) at the same location in space but at successive times or frames. Mn(i, j) as a function of time (n) is defined as:
 
@@ -74,83 +268,41 @@ The measure of temporal information (TI) is computed as the maximum over time (m
 
 > More motion in adjacent frames will result in higher values of TI
 
-## Command Line Usage
+### What is the purpose of this activity?
 
-If you need a command line version that uses `siti-tools` in the background, check out [slhck/siti](https://github.com/slhck/siti).
+The [No-Reference Metrics (NORM)](https://www.its.bldrdoc.gov/vqeg/projects/no-reference-metrics-norm.aspx) working group of the [Video Quality Expert Group (VQEG)](https://www.its.bldrdoc.gov/vqeg/vqeg-home.aspx) is currently investigating the Spatial Information (SI) and Temporal Information (TI) indicators defined in ITU-T Rec. P.910.
 
-This repository will gain a command line interface once it gets more features.
+SI and TI have been frequently used by the community to classify sets of video sequences or video databases, primarily for checking that the used material spans an appropriate range of spatiotemporal complexity before further processing the sequences (e.g., encoding them, presenting them to subjects). Since they are easy and quick to calculate, SI/TI are still very relevant today.
 
-## API Usage
+VQEG has identified several limitations with the current definition of SI/TI, including the following:
 
-The tools expose the following via an API:
+- It is not specified how to handle video with limited (16-235) vs. full range (0-255).
+- The applicable range of input bit depths (bits per channel) is not specified. This means that it is unclear how to handle content with different bit depths, in particular when comparing sequences of varying bit depth.
+- It is undefined how to handle high dynamic range (HDR) content, where the luminance information might be encoded differently compared to standard dynamic range (SDR).
 
-- two main functions to calculate SI and TI given an array of frame data (`si` and `ti`)
-- a helper function to calculate SI and TI together (`calculate_si_ti`)
-- helper functions for reading files (`read_container`, `read_file`)
+The overall aims of this activity are the following:
 
-### Combined Calculation
+- Providing an updated set of calculation functions for SI and TI that cover limited/full range content, higher bit depths, and HDR sequences
+- Providing a set of test sequences and expected values (i.e., test vectors) in order to allow others to reproduce the results and verify their own implementation
+- Updating the ITU-T Rec. P.910 text to incorporate the new calculation functions
 
-In the simplest case, run:
+### Contributors
 
-```python
-from siti_tools.siti import calculate_si_ti
+Code contributors:
 
-si_values, ti_values, frame_count = calculate_si_ti("/path/to/file.y4m")
-```
+- Werner Robitza
+- Lukas Krasula
 
-You can then access the raw values in the individual variables.
-
-⚠️ The first TI value will always be `None`, since it is not defined.
-
-### Individual Calculation
-
-You can also manually calculate the values.
-
-When calculating TI, make sure to compare against the previous frame data:
-
-```python
-from siti_tools.file import read_container
-from siti_tools.siti import si, ti
-
-previous_frame_data = None
-for frame in read_container("/path/to/file.y4m"):
-    si_value = si(frame)
-    ti_value = ti(frame, previous_frame_data)
-    previous_frame_data = frame
-```
-
-The `read_container` function returns each frame individually and the loop will exit once it's done.
-
-## Documentation
-
-To read the API documentation, head to https://telecommunication-telemedia-assessment.github.io/siti-tools/.
-
-## Acknowledgements
+### Acknowledgements
 
 If you use this software in your research, please include link to this repository.
 
-## Related Projects
+### Related Projects
 
 - [TelecommunicationTelemediaAssessment/SITI](https://github.com/VQEG/SITI): Legacy calculations of OpenCV and Python version of SI/TI, values may not necessarily correspond.
 - [NabajeetBarman/SI-TI](https://github.com/NabajeetBarman/SI-TI): MATLAB version of SI/TI calculation, values verified against this repository.
 
-## Testing
-
-This repo provides a set of test sequences with expected output values that you can verify against.
-
-Install `pytest`:
-
-```
-pip3 install -r requirements.dev.txt
-```
-
-Then run:
-
-```bash
-python3 -m pytest test/test.py
-```
-
-## License
+### License
 
 MIT License
 
