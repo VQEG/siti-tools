@@ -299,7 +299,7 @@ If you use this software in your research, please include link to this repositor
 
 ### Related Projects
 
-- [TelecommunicationTelemediaAssessment/SITI](https://github.com/VQEG/SITI): Legacy calculations of OpenCV and Python version of SI/TI, values may not necessarily correspond.
+- [TelecommunicationTelemediaAssessment/SITI](https://github.com/Telecommunication-Telemedia-Assessment/SITI): Legacy calculations of OpenCV and Python version of SI/TI, values may not necessarily correspond.
 - [NabajeetBarman/SI-TI](https://github.com/NabajeetBarman/SI-TI): MATLAB version of SI/TI calculation, values verified against this repository.
 
 ### License
