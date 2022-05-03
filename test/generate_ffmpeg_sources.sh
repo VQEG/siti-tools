@@ -11,7 +11,8 @@ ffmpeg -y -f lavfi -i color=black:size=320x240 -frames:v 3 -pix_fmt yuv420p vide
 ffmpeg -y -f lavfi -i color=white:size=320x240 -frames:v 3 -pix_fmt yuv420p videos/white.y4m
 
 # generate random noise
-ffmpeg -y -f lavfi -i nullsrc=size=320x240 -filter:v "geq=random(1)*255:128:128,signalstats,metadata=print" -frames:v 3 -pix_fmt yuv420p videos/noise.y4m
+# disabled since it cannot be done reproducibly
+# ffmpeg -y -f lavfi -i nullsrc=size=320x240 -filter:v "geq=random(1)*255:128:128,signalstats,metadata=print" -frames:v 3 -pix_fmt yuv420p videos/noise.y4m
 
 # generate full range output ("pc" in ffmpeg)
 ffmpeg -y -f lavfi -i testsrc=size=320x240 -filter:v "scale=in_range=limited:out_range=full,signalstats,metadata=print" -frames:v 3 -pix_fmt yuv420p videos/full-range.y4m
