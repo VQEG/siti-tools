@@ -40,7 +40,7 @@ from .siti import (
 )
 
 
-class CustomFormatter(
+class CustomArgsFormatter(
     argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter
 ):
     """
@@ -85,7 +85,7 @@ def setup_logger(level: int = logging.INFO):
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="siti-tools", formatter_class=CustomFormatter)
+    parser = argparse.ArgumentParser(prog="siti-tools", formatter_class=CustomArgsFormatter)
 
     group_io = parser.add_argument_group("input/output")
     group_io.add_argument(

@@ -517,7 +517,7 @@
         <span class="n">l_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Electro-optical transfer function defined in ITU-T Rec. BT.1886</span>
+<span class="sd">        Electro-optical transfer function defined in ITU-R Rec. BT.1886</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            frame_data: pixel values expected in the range [0, 1]</span>
@@ -601,6 +601,8 @@
 
         <span class="k">if</span> <span class="n">eotf_function</span> <span class="o">==</span> <span class="n">EotfFunction</span><span class="o">.</span><span class="n">BT1886</span><span class="p">:</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_1886</span>
+            <span class="c1"># note that l_min/l_max are not passed here on purpose, as they are set to 0.0 and 1.0,</span>
+            <span class="c1"># and mapped outside of the eotf_1886 function</span>
             <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">gamma</span><span class="p">}</span>
         <span class="k">elif</span> <span class="n">eotf_function</span> <span class="o">==</span> <span class="n">EotfFunction</span><span class="o">.</span><span class="n">INV_SRGB</span><span class="p">:</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_inv_srgb</span>
@@ -613,7 +615,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">oetf_pq</span><span class="p">(</span><span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perceptual quantizer opto-electrical transfer function defined in ITU-T Rec. BT.2100</span>
+<span class="sd">        Perceptual quantizer opto-electrical transfer function defined in ITU-R Rec. BT.2100</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            frame_data: pixel values expected to be in the physical luminance between 0 and 10,000 cd/m^2</span>
@@ -636,7 +638,8 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">oetf_pu21</span><span class="p">(</span>
-        <span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Pu21Mode</span> <span class="o">=</span> <span class="n">Pu21Mode</span><span class="o">.</span><span class="n">BANDING</span><span class="p">,</span>
+        <span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="n">Pu21Mode</span> <span class="o">=</span> <span class="n">Pu21Mode</span><span class="o">.</span><span class="n">BANDING</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        PU21 OETF, see https://github.com/gfxdisp/pu21</span>
@@ -757,20 +760,20 @@
 <span class="sd">        Normalize frame data in the range [0, 1] to their original range, based on</span>
 <span class="sd">        bit depth, e.g. from [0, 1] to [0, 255].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">normalize_to_original_si_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalize frame data in the range [0, 1] to [0, 255], which was the original</span>
 <span class="sd">        range for SI/TI.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="mi">8</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">8</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">normalize_between_0_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalize frame data in the range [0, x] to [0, 1], based on bit depth.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_frame_callback</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">callback_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
@@ -822,7 +825,9 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="nb">int</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Calculate SI and TI from an input file.</span>
 
@@ -903,33 +908,45 @@
                         <span class="n">frame_data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span> <span class="o">==</span> <span class="n">HdrMode</span><span class="o">.</span><span class="n">HDR10</span><span class="p">:</span>
                     <span class="c1"># nothing to do, we are already in PQ domain</span>
                     <span class="c1"># TODO allow using Pu21 here?</span>
                     <span class="k">pass</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span> <span class="o">==</span> <span class="n">HdrMode</span><span class="o">.</span><span class="n">HLG</span><span class="p">:</span>
-                    <span class="n">frame_data</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_hlg</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="p">)</span>
+                    <span class="n">frame_data</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_hlg</span><span class="p">(</span>
+                        <span class="n">frame_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span>
+                    <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after eotf_hlg for HLG with l_min/l_max settings </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after eotf_hlg for HLG with l_min/l_max settings </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                     <span class="n">frame_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="p">(</span>
                         <span class="n">frame_data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid HDR mode &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">:</span>
-                <span class="n">si_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span><span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">))</span>
+                <span class="n">si_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span>
+                    <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">si_value</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">current_frame</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">:</span>
-                    <span class="n">ti_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">)))</span>
+                    <span class="n">ti_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span>
+                        <span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">))</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">ti_value</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1591,7 +1608,7 @@
         <span class="n">l_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Electro-optical transfer function defined in ITU-T Rec. BT.1886</span>
+<span class="sd">        Electro-optical transfer function defined in ITU-R Rec. BT.1886</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            frame_data: pixel values expected in the range [0, 1]</span>
@@ -1675,6 +1692,8 @@
 
         <span class="k">if</span> <span class="n">eotf_function</span> <span class="o">==</span> <span class="n">EotfFunction</span><span class="o">.</span><span class="n">BT1886</span><span class="p">:</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_1886</span>
+            <span class="c1"># note that l_min/l_max are not passed here on purpose, as they are set to 0.0 and 1.0,</span>
+            <span class="c1"># and mapped outside of the eotf_1886 function</span>
             <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">gamma</span><span class="p">}</span>
         <span class="k">elif</span> <span class="n">eotf_function</span> <span class="o">==</span> <span class="n">EotfFunction</span><span class="o">.</span><span class="n">INV_SRGB</span><span class="p">:</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_inv_srgb</span>
@@ -1687,7 +1706,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">oetf_pq</span><span class="p">(</span><span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perceptual quantizer opto-electrical transfer function defined in ITU-T Rec. BT.2100</span>
+<span class="sd">        Perceptual quantizer opto-electrical transfer function defined in ITU-R Rec. BT.2100</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            frame_data: pixel values expected to be in the physical luminance between 0 and 10,000 cd/m^2</span>
@@ -1710,7 +1729,8 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">oetf_pu21</span><span class="p">(</span>
-        <span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Pu21Mode</span> <span class="o">=</span> <span class="n">Pu21Mode</span><span class="o">.</span><span class="n">BANDING</span><span class="p">,</span>
+        <span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="n">Pu21Mode</span> <span class="o">=</span> <span class="n">Pu21Mode</span><span class="o">.</span><span class="n">BANDING</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        PU21 OETF, see https://github.com/gfxdisp/pu21</span>
@@ -1831,20 +1851,20 @@
 <span class="sd">        Normalize frame data in the range [0, 1] to their original range, based on</span>
 <span class="sd">        bit depth, e.g. from [0, 1] to [0, 255].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">normalize_to_original_si_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalize frame data in the range [0, 1] to [0, 255], which was the original</span>
 <span class="sd">        range for SI/TI.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="mi">8</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">8</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">normalize_between_0_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalize frame data in the range [0, x] to [0, 1], based on bit depth.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_frame_callback</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">callback_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
@@ -1896,7 +1916,9 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="nb">int</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Calculate SI and TI from an input file.</span>
 
@@ -1977,33 +1999,45 @@
                         <span class="n">frame_data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span> <span class="o">==</span> <span class="n">HdrMode</span><span class="o">.</span><span class="n">HDR10</span><span class="p">:</span>
                     <span class="c1"># nothing to do, we are already in PQ domain</span>
                     <span class="c1"># TODO allow using Pu21 here?</span>
                     <span class="k">pass</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span> <span class="o">==</span> <span class="n">HdrMode</span><span class="o">.</span><span class="n">HLG</span><span class="p">:</span>
-                    <span class="n">frame_data</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_hlg</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="p">)</span>
+                    <span class="n">frame_data</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_hlg</span><span class="p">(</span>
+                        <span class="n">frame_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span>
+                    <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after eotf_hlg for HLG with l_min/l_max settings </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after eotf_hlg for HLG with l_min/l_max settings </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                     <span class="n">frame_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="p">(</span>
                         <span class="n">frame_data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid HDR mode &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">:</span>
-                <span class="n">si_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span><span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">))</span>
+                <span class="n">si_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span>
+                    <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">si_value</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">current_frame</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">:</span>
-                    <span class="n">ti_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">)))</span>
+                    <span class="n">ti_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span>
+                        <span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">))</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">ti_value</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -2562,7 +2596,7 @@
         <span class="n">l_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Electro-optical transfer function defined in ITU-T Rec. BT.1886</span>
+<span class="sd">        Electro-optical transfer function defined in ITU-R Rec. BT.1886</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            frame_data: pixel values expected in the range [0, 1]</span>
@@ -2598,7 +2632,7 @@
 
         </details>
 
-            <div class="docstring"><p>Electro-optical transfer function defined in ITU-T Rec. BT.1886</p>
+            <div class="docstring"><p>Electro-optical transfer function defined in ITU-R Rec. BT.1886</p>
 
 <h6 id="args">Args</h6>
 
@@ -2725,6 +2759,8 @@
 
         <span class="k">if</span> <span class="n">eotf_function</span> <span class="o">==</span> <span class="n">EotfFunction</span><span class="o">.</span><span class="n">BT1886</span><span class="p">:</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_1886</span>
+            <span class="c1"># note that l_min/l_max are not passed here on purpose, as they are set to 0.0 and 1.0,</span>
+            <span class="c1"># and mapped outside of the eotf_1886 function</span>
             <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">gamma</span><span class="p">}</span>
         <span class="k">elif</span> <span class="n">eotf_function</span> <span class="o">==</span> <span class="n">EotfFunction</span><span class="o">.</span><span class="n">INV_SRGB</span><span class="p">:</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_inv_srgb</span>
@@ -2769,7 +2805,7 @@
             <div class="codehilite"><pre><span></span>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">oetf_pq</span><span class="p">(</span><span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perceptual quantizer opto-electrical transfer function defined in ITU-T Rec. BT.2100</span>
+<span class="sd">        Perceptual quantizer opto-electrical transfer function defined in ITU-R Rec. BT.2100</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            frame_data: pixel values expected to be in the physical luminance between 0 and 10,000 cd/m^2</span>
@@ -2793,7 +2829,7 @@
 
         </details>
 
-            <div class="docstring"><p>Perceptual quantizer opto-electrical transfer function defined in ITU-T Rec. BT.2100</p>
+            <div class="docstring"><p>Perceptual quantizer opto-electrical transfer function defined in ITU-R Rec. BT.2100</p>
 
 <h6 id="args">Args</h6>
 
@@ -2826,7 +2862,8 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">oetf_pu21</span><span class="p">(</span>
-        <span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Pu21Mode</span> <span class="o">=</span> <span class="n">Pu21Mode</span><span class="o">.</span><span class="n">BANDING</span><span class="p">,</span>
+        <span class="n">frame_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="n">Pu21Mode</span> <span class="o">=</span> <span class="n">Pu21Mode</span><span class="o">.</span><span class="n">BANDING</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        PU21 OETF, see https://github.com/gfxdisp/pu21</span>
@@ -3013,7 +3050,7 @@
 <span class="sd">        Normalize frame data in the range [0, 1] to their original range, based on</span>
 <span class="sd">        bit depth, e.g. from [0, 1] to [0, 255].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -3039,7 +3076,7 @@ bit depth, e.g. from [0, 1] to [0, 255].</p>
 <span class="sd">        Normalize frame data in the range [0, 1] to [0, 255], which was the original</span>
 <span class="sd">        range for SI/TI.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="mi">8</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">8</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -3064,7 +3101,7 @@ range for SI/TI.</p>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalize frame data in the range [0, x] to [0, 1], based on bit depth.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame_data</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -3210,7 +3247,9 @@ Apply this to limited range content only! If we exceed the limited range, an err
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="nb">int</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Calculate SI and TI from an input file.</span>
 
@@ -3291,33 +3330,45 @@ Apply this to limited range content only! If we exceed the limited range, an err
                         <span class="n">frame_data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span> <span class="o">==</span> <span class="n">HdrMode</span><span class="o">.</span><span class="n">HDR10</span><span class="p">:</span>
                     <span class="c1"># nothing to do, we are already in PQ domain</span>
                     <span class="c1"># TODO allow using Pu21 here?</span>
                     <span class="k">pass</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span> <span class="o">==</span> <span class="n">HdrMode</span><span class="o">.</span><span class="n">HLG</span><span class="p">:</span>
-                    <span class="n">frame_data</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_hlg</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="p">)</span>
+                    <span class="n">frame_data</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">eotf_hlg</span><span class="p">(</span>
+                        <span class="n">frame_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span>
+                    <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after eotf_hlg for HLG with l_min/l_max settings </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after eotf_hlg for HLG with l_min/l_max settings </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">l_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                     <span class="n">frame_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="p">(</span>
                         <span class="n">frame_data</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">current_frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Frame data after OETF function </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function</span><span class="si">}</span><span class="s2"> with args </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oetf_function_kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_log_frame_data</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid HDR mode &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hdr_mode</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">:</span>
-                <span class="n">si_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span><span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">))</span>
+                <span class="n">si_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span>
+                    <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">si_value</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">si</span><span class="p">(</span><span class="n">frame_data</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">current_frame</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">:</span>
-                    <span class="n">ti_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">)))</span>
+                    <span class="n">ti_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_to_original_si_range</span><span class="p">(</span>
+                        <span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">))</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">ti_value</span> <span class="o">=</span> <span class="n">SiTiCalculator</span><span class="o">.</span><span class="n">ti</span><span class="p">(</span><span class="n">frame_data</span><span class="p">,</span> <span class="n">previous_frame_data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>

@@ -115,11 +115,13 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">yield</span> <span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">planes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">datatype</span><span class="p">)</span>
-                <span class="c1"># FIXME: the below does the &quot;standard&quot; conversion of YUV to grey,</span>
-                <span class="c1"># using weighting, but it does not actually</span>
-                <span class="c1"># use the correct luminance-only Y values, if you want those</span>
+                <span class="c1"># The code commented out below does the &quot;standard&quot; conversion of YUV</span>
+                <span class="c1"># to grey, using weighting, but it does not actually use the correct</span>
+                <span class="c1"># luminance-only Y values.</span>
                 <span class="c1"># frame.to_ndarray(format=&quot;gray&quot;)</span>
+
+                <span class="c1"># choose the Y plane (the first one)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">planes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">datatype</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">width</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -176,11 +178,13 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">yield</span> <span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">planes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">datatype</span><span class="p">)</span>
-                <span class="c1"># FIXME: the below does the &quot;standard&quot; conversion of YUV to grey,</span>
-                <span class="c1"># using weighting, but it does not actually</span>
-                <span class="c1"># use the correct luminance-only Y values, if you want those</span>
+                <span class="c1"># The code commented out below does the &quot;standard&quot; conversion of YUV</span>
+                <span class="c1"># to grey, using weighting, but it does not actually use the correct</span>
+                <span class="c1"># luminance-only Y values.</span>
                 <span class="c1"># frame.to_ndarray(format=&quot;gray&quot;)</span>
+
+                <span class="c1"># choose the Y plane (the first one)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">planes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">datatype</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">width</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>

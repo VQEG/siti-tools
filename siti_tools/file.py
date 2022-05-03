@@ -65,11 +65,13 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
 
         try:
             yield (
-                np.frombuffer(frame.planes[0], datatype)
-                # FIXME: the below does the "standard" conversion of YUV to grey,
-                # using weighting, but it does not actually
-                # use the correct luminance-only Y values, if you want those
+                # The code commented out below does the "standard" conversion of YUV
+                # to grey, using weighting, but it does not actually use the correct
+                # luminance-only Y values.
                 # frame.to_ndarray(format="gray")
+
+                # choose the Y plane (the first one)
+                np.frombuffer(frame.planes[0], datatype)
                 .reshape(frame.height, frame.width).astype("int")
             )
         except ValueError as e:

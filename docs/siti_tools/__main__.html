@@ -28,10 +28,10 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="class" href="#CustomFormatter">CustomFormatter</a>
+                    <a class="class" href="#CustomArgsFormatter">CustomArgsFormatter</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#CustomFormatter.__init__">CustomFormatter</a>
+                                <a class="function" href="#CustomArgsFormatter.__init__">CustomArgsFormatter</a>
                         </li>
                 </ul>
 
@@ -102,7 +102,7 @@
 <span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">CustomFormatter</span><span class="p">(</span>
+<span class="k">class</span> <span class="nc">CustomArgsFormatter</span><span class="p">(</span>
     <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -147,7 +147,7 @@
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;siti-tools&quot;</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">CustomFormatter</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;siti-tools&quot;</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">CustomArgsFormatter</span><span class="p">)</span>
 
     <span class="n">group_io</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;input/output&quot;</span><span class="p">)</span>
     <span class="n">group_io</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -357,18 +357,18 @@
         </details>
 
             </section>
-                <section id="CustomFormatter">
+                <section id="CustomArgsFormatter">
                                 <div class="attr class">
-        <a class="headerlink" href="#CustomFormatter">#&nbsp;&nbsp</a>
+        <a class="headerlink" href="#CustomArgsFormatter">#&nbsp;&nbsp</a>
 
         
         <span class="def">class</span>
-        <span class="name">CustomFormatter</span>(<span class="base">argparse.ArgumentDefaultsHelpFormatter</span>, <span class="base">argparse.RawDescriptionHelpFormatter</span>):
+        <span class="name">CustomArgsFormatter</span>(<span class="base">argparse.ArgumentDefaultsHelpFormatter</span>, <span class="base">argparse.RawDescriptionHelpFormatter</span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CustomFormatter</span><span class="p">(</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CustomArgsFormatter</span><span class="p">(</span>
     <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -405,11 +405,11 @@ See: https://stackoverflow.com/a/34545549/435093</p>
 </div>
 
 
-                            <div id="CustomFormatter.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#CustomFormatter.__init__">#&nbsp;&nbsp</a>
+                            <div id="CustomArgsFormatter.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CustomArgsFormatter.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">CustomFormatter</span><span class="signature">(prog)</span>    </div>
+            <span class="name">CustomArgsFormatter</span><span class="signature">(prog)</span>    </div>
 
                 <details>
             <summary>View Source</summary>
@@ -426,13 +426,13 @@ See: https://stackoverflow.com/a/34545549/435093</p>
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt>argparse.HelpFormatter</dt>
-                                <dd id="CustomFormatter.start_section" class="function">start_section</dd>
-                <dd id="CustomFormatter.end_section" class="function">end_section</dd>
-                <dd id="CustomFormatter.add_text" class="function">add_text</dd>
-                <dd id="CustomFormatter.add_usage" class="function">add_usage</dd>
-                <dd id="CustomFormatter.add_argument" class="function">add_argument</dd>
-                <dd id="CustomFormatter.add_arguments" class="function">add_arguments</dd>
-                <dd id="CustomFormatter.format_help" class="function">format_help</dd>
+                                <dd id="CustomArgsFormatter.start_section" class="function">start_section</dd>
+                <dd id="CustomArgsFormatter.end_section" class="function">end_section</dd>
+                <dd id="CustomArgsFormatter.add_text" class="function">add_text</dd>
+                <dd id="CustomArgsFormatter.add_usage" class="function">add_usage</dd>
+                <dd id="CustomArgsFormatter.add_argument" class="function">add_argument</dd>
+                <dd id="CustomArgsFormatter.add_arguments" class="function">add_arguments</dd>
+                <dd id="CustomArgsFormatter.format_help" class="function">format_help</dd>
 
             </div>
                                 </dl>
@@ -478,7 +478,7 @@ See: https://stackoverflow.com/a/34545549/435093</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;siti-tools&quot;</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">CustomFormatter</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;siti-tools&quot;</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">CustomArgsFormatter</span><span class="p">)</span>
 
     <span class="n">group_io</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;input/output&quot;</span><span class="p">)</span>
     <span class="n">group_io</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
