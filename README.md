@@ -1,12 +1,12 @@
 # siti-tools
 
-[![Python package](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/actions/workflows/python-package.yml/badge.svg)](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/actions/workflows/python-package.yml)
+[![Python package](https://github.com/VQEG/siti-tools/actions/workflows/python-package.yml/badge.svg)](https://github.com/VQEG/siti-tools/actions/workflows/python-package.yml)
 
 SI/TI calculation tools.
 
 Calculate spatial information (SI) and temporal information (TI).
 
-**⚠️ Note: This is the development branch of the project. For the stable version, see [the `main` branch](https://github.com/Telecommunication-Telemedia-Assessment/siti-tools/tree/main)**.
+**⚠️ Note: This is the development branch of the project. For the stable version, see [the `main` branch](https://github.com/VQEG/siti-tools/tree/main)**.
 
 Contents:
 
@@ -299,7 +299,7 @@ If you use this software in your research, please include link to this repositor
 
 ### Related Projects
 
-- [TelecommunicationTelemediaAssessment/SITI](https://github.com/Telecommunication-Telemedia-Assessment/SITI): Legacy calculations of OpenCV and Python version of SI/TI, values may not necessarily correspond.
+- [TelecommunicationTelemediaAssessment/SITI](https://github.com/VQEG/SITI): Legacy calculations of OpenCV and Python version of SI/TI, values may not necessarily correspond.
 - [NabajeetBarman/SI-TI](https://github.com/NabajeetBarman/SI-TI): MATLAB version of SI/TI calculation, values verified against this repository.
 
 ### License
