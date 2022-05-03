@@ -344,6 +344,8 @@ class SiTiCalculator:
 
         if eotf_function == EotfFunction.BT1886:
             fn = SiTiCalculator.eotf_1886
+            # note that l_min/l_max are not passed here on purpose, as they are set to 0.0 and 1.0,
+            # and mapped outside of the eotf_1886 function
             kwargs = {"gamma": gamma}
         elif eotf_function == EotfFunction.INV_SRGB:
             fn = SiTiCalculator.eotf_inv_srgb
@@ -379,7 +381,8 @@ class SiTiCalculator:
 
     @staticmethod
     def oetf_pu21(
-        frame_data: np.ndarray, mode: Pu21Mode = Pu21Mode.BANDING,
+        frame_data: np.ndarray,
+        mode: Pu21Mode = Pu21Mode.BANDING,
     ) -> np.ndarray:
         """
         PU21 OETF, see https://github.com/gfxdisp/pu21
@@ -500,20 +503,20 @@ class SiTiCalculator:
         Normalize frame data in the range [0, 1] to their original range, based on
         bit depth, e.g. from [0, 1] to [0, 255].
         """
-        return frame_data * (2 ** self.bit_depth - 1)
+        return frame_data * (2**self.bit_depth - 1)
 
     def normalize_to_original_si_range(self, frame_data: Union[np.ndarray, float]):
         """
         Normalize frame data in the range [0, 1] to [0, 255], which was the original
         range for SI/TI.
         """
-        return frame_data * (2 ** 8 - 1)
+        return frame_data * (2**8 - 1)
 
     def normalize_between_0_1(self, frame_data: Union[np.ndarray, float]):
         """
         Normalize frame data in the range [0, x] to [0, 1], based on bit depth.
         """
-        return frame_data / (2 ** self.bit_depth - 1)
+        return frame_data / (2**self.bit_depth - 1)
 
     def add_frame_callback(
         self, callback_fn: Callable[[float, Union[float, None], int], None]
@@ -565,7 +568,9 @@ class SiTiCalculator:
         )
 
     def calculate(
-        self, input_file: str, num_frames=0,
+        self,
+        input_file: str,
+        num_frames=0,
     ) -> Tuple[List[float], List[Union[float, None]], int]:
         """Calculate SI and TI from an input file.
 
@@ -646,33 +651,45 @@ class SiTiCalculator:
                         frame_data, **self.oetf_function_kwargs
                     )
                     if current_frame == 0:
-                        logger.debug(f"Frame data after OETF function {self.oetf_function} with args {self.oetf_function_kwargs}")
+                        logger.debug(
+                            f"Frame data after OETF function {self.oetf_function} with args {self.oetf_function_kwargs}"
+                        )
                         self._log_frame_data(frame_data)
                 elif self.hdr_mode == HdrMode.HDR10:
                     # nothing to do, we are already in PQ domain
                     # TODO allow using Pu21 here?
                     pass
                 elif self.hdr_mode == HdrMode.HLG:
-                    frame_data = SiTiCalculator.eotf_hlg(frame_data, self.l_min, self.l_max)
+                    frame_data = SiTiCalculator.eotf_hlg(
+                        frame_data, self.l_min, self.l_max
+                    )
                     if current_frame == 0:
-                        logger.debug(f"Frame data after eotf_hlg for HLG with l_min/l_max settings {self.l_min, self.l_max}")
+                        logger.debug(
+                            f"Frame data after eotf_hlg for HLG with l_min/l_max settings {self.l_min, self.l_max}"
+                        )
                         self._log_frame_data(frame_data)
                     frame_data = self.oetf_function(
                         frame_data, **self.oetf_function_kwargs
                     )
                     if current_frame == 0:
-                        logger.debug(f"Frame data after OETF function {self.oetf_function} with args {self.oetf_function_kwargs}")
+                        logger.debug(
+                            f"Frame data after OETF function {self.oetf_function} with args {self.oetf_function_kwargs}"
+                        )
                         self._log_frame_data(frame_data)
                 else:
                     raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
 
             if not self.legacy:
-                si_value = self.normalize_to_original_si_range(SiTiCalculator.si(frame_data))
+                si_value = self.normalize_to_original_si_range(
+                    SiTiCalculator.si(frame_data)
+                )
             else:
                 si_value = SiTiCalculator.si(frame_data)
             if current_frame != 0:
                 if not self.legacy:
-                    ti_value = self.normalize_to_original_si_range(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data)))
+                    ti_value = self.normalize_to_original_si_range(
+                        cast(float, SiTiCalculator.ti(frame_data, previous_frame_data))
+                    )
                 else:
                     ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
             else:
