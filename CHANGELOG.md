@@ -1,6 +1,15 @@
 # Changelog
 
 
+## v0.2.1 (2022-05-13)
+
+* Fix console script installation.
+
+* Fix link in setup.py.
+
+* Update README.
+
+
 ## v0.2.0 (2022-05-03)
 
 * Check for pypandoc on release.
