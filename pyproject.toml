@@ -20,6 +20,9 @@ black = "^22.3.0"
 requests = "^2.27.1"
 pytest-xdist = "^2.5.0"
 
+[tool.poetry.scripts]
+siti-tools = 'siti_tools.__main__:main'
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

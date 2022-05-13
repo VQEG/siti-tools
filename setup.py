@@ -48,5 +48,5 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
-    entry_points={"console_scripts": ["siti-tools = siti.__main__:main"]},
+    entry_points={"console_scripts": ["siti-tools = siti_tools.__main__:main"]},
 )
