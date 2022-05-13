@@ -28,7 +28,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Werner Robitza",
     author_email="werner.robitza@gmail.com",
-    url="https://github.com/Telecommunication-Telemedia-Assessment/siti-tools",
+    url="https://github.com/VQEG/siti-tools",
     packages=["siti_tools"],
     include_package_data=True,
     install_requires=["scipy", "numpy", "av", "tqdm", "plotille"],
