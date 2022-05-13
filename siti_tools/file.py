@@ -56,9 +56,12 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
         # FIXME: this has been determined experimentally, not sure if it is the
         # correct way to do that -- the return values seem correct for a white/black
         # checkerboard pattern
-        if "p10" in str(frame.format):
+        if "yuv" not in str(frame.format.name):
+            raise RuntimeError(f"Decoding not yet possible for format {frame.format.name}! Only YUV is supported.")
+
+        if "p10" in str(frame.format.name):
             datatype = np.uint16
-        elif "p12" in str(frame.format):
+        elif "p12" in str(frame.format.name):
             datatype = np.uint16
         else:
             datatype = np.uint8
