@@ -14,6 +14,9 @@ Contents:
 - [Installation](#installation)
 - [Usage](#usage)
   - [Command Line Usage](#command-line-usage)
+    - [Usage for > 8-bit Content](#usage-for--8-bit-content)
+    - [Full vs. Limited Range](#full-vs-limited-range)
+    - [HDR Usage](#hdr-usage)
   - [Detailed Options](#detailed-options)
   - [Output](#output)
   - [API Usage](#api-usage)
@@ -55,6 +58,8 @@ pip3 install --user .
 
 ## Usage
 
+This tool can be used via command line or through a Python API.
+
 ### Command Line Usage
 
 After installation, simply run:
@@ -65,22 +70,49 @@ siti-tools /path/to/input/file.mp4
 
 to run the tool. It will print JSON output containing info about SI/TI values and other statistics to `stdout`.
 
-This tool does not automatically handle input that is not 8-bit SDR content. To deal with HDR and > 8-bit, you can choose the HDR mode and bit depth:
+This works for 8-bit standard dynamic range (SDR) content, which will apply to most input files. However, this tool does not automatically handle input that is not 8-bit SDR content. For more info on that, see below.
+
+#### Usage for > 8-bit Content
+
+To deal with input with more than 8-bit, you can choose the bit depth:
 
 ```
-siti-tools /path/to/input/file-HLG.mov --hdr-mode hlg --bit-depth 10
-siti-tools /path/to/input/file-HDR10.mp4 --hdr-mode hdr10 --bit-depth 10
+siti-tools /path/to/input/file.mov --bit-depth 10
 ```
 
-You can further tune the HDR parameters (see next section).
+To check if your input really has 10 bit, you can use `ffprobe`:
 
-Additionally, if your input has full range values (0–255) instead of limited range (16–235), you must specify the following flag:
+```
+ffprobe -v error -select_streams v:0 -show_streams test/videos/ParkJoy_480x270_50.y4m -of compact=p=0:nk=1 -show_entries stream=pix_fmt
+```
+
+If the pixel format ends with `p10`, you have a 10-bit sequence.
+
+#### Full vs. Limited Range
+
+If your input has full range values (0–255) instead of limited range (16–235), you must specify the following flag:
 
 ```
 siti-tools /path/to/input/file.mp4 --color-range full
 ```
 
-This ensures that the values are properly scaled.
+This ensures that the values are properly scaled. If you pass a full range content to the tool without specifying the flag, it will print an error.
+
+#### HDR Usage
+
+This tool handles HDR content encoded in HLG or HDR10. For example, if you have a HLG-encoded file with 10 bit per channel, you should call:
+
+```
+siti-tools /path/to/input/file-HLG.mov --hdr-mode hlg --bit-depth 10
+```
+
+Likewise, if you have an HDR10-encoded file:
+
+```
+siti-tools /path/to/input/file-HDR10.mp4 --hdr-mode hdr10 --bit-depth 10
+```
+
+You can further tune the HDR parameters. The most important ones are the assumed display luminance values, which can be set via `--l-max` and `--l-min`. We have chosen sane defaults here, but depending on your application you may want to override them.
 
 ### Detailed Options
 
@@ -306,7 +338,7 @@ If you use this software in your research, please include link to this repositor
 
 MIT License
 
-siti_tools, Copyright (c) 2021 Werner Robitza
+siti_tools, Copyright (c) 2021-2022 Werner Robitza, Lukas Krasula
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
