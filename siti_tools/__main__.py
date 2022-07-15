@@ -29,6 +29,7 @@ import json
 import logging
 import sys
 from tqdm import tqdm
+from . import __version__ as prog_version
 from .log import CustomLogFormatter
 from .siti import (
     CalculationDomain,
@@ -85,7 +86,11 @@ def setup_logger(level: int = logging.INFO):
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="siti-tools", formatter_class=CustomArgsFormatter)
+    parser = argparse.ArgumentParser(
+        prog="siti-tools",
+        description=f"siti-tools v{prog_version}",
+        formatter_class=CustomArgsFormatter
+    )
 
     group_io = parser.add_argument_group("input/output")
     group_io.add_argument(
@@ -128,6 +133,9 @@ def main():
     )
     group_io.add_argument(
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
+    )
+    group_io.add_argument(
+        "--version", action="version", version=prog_version
     )
 
     group_general = parser.add_argument_group("Video/SI options")
