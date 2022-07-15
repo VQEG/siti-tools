@@ -174,7 +174,15 @@ PU21 options:
 
 ### Output
 
-The tool will output a valid JSON object on `stdout`, with SI and TI scores contained in an array. Note that the first frame has no TI value by definition, so a file with two frames would produce the following output:
+The tool will output a valid JSON object on `stdout`, with SI and TI scores contained in an array.
+
+To redirect the output to a file, use shell redirection:
+
+```bash
+siti-tools input1.mp4 > input1.json
+```
+
+Note that the first frame has no TI value by definition, so a file with two frames would produce the following output:
 
 ```json
 {
@@ -207,6 +215,37 @@ In the `settings` key, you will find information on how the calculation was done
 ```
 siti-tools input1.mp4 > input1.json
 siti-tools input2.mp4 --settings input1.json > input2.json
+```
+
+You can also generate CSV output, which will contain fewer columns but is easier to parse.
+
+```bash
+siti-tools input1.mp4 --format csv > input1.csv
+siti-tools input2.mp4 --settings input1.json --format csv > input2.csv
+```
+
+The output might look like this:
+
+```
+input_file,n,si,ti
+foreman_cif.y4m,1,39.342,
+foreman_cif.y4m,2,39.229,5.007
+foreman_cif.y4m,3,39.224,5.291
+foreman_cif.y4m,4,39.458,5.08
+foreman_cif.y4m,5,39.212,4.854
+foreman_cif.y4m,6,39.214,4.22
+foreman_cif.y4m,7,39.26,3.95
+foreman_cif.y4m,8,39.351,4.267
+foreman_cif.y4m,9,39.349,4.915
+foreman_cif.y4m,10,39.504,4.77
+```
+
+Note that the first TI value is empty by definition.
+
+There is also a handy conversion utility to help you convert JSON to CSV files after you have calculated the scores.
+
+```bash
+utils/json-to-csv.py input.json input.csv
 ```
 
 ### API Usage
