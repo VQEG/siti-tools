@@ -14,17 +14,12 @@ Contents:
 - [Installation](#installation)
 - [Usage](#usage)
   - [Command Line Usage](#command-line-usage)
-    - [Usage for > 8-bit Content](#usage-for--8-bit-content)
-    - [Full vs. Limited Range](#full-vs-limited-range)
-    - [HDR Usage](#hdr-usage)
   - [Detailed Options](#detailed-options)
   - [Output](#output)
   - [API Usage](#api-usage)
 - [Testing](#testing)
 - [About](#about)
   - [What is SI/TI?](#what-is-siti)
-    - [Spatial Information](#spatial-information)
-    - [Temporal information](#temporal-information)
   - [What is the purpose of this activity?](#what-is-the-purpose-of-this-activity)
   - [Contributors](#contributors)
   - [Acknowledgements](#acknowledgements)
@@ -70,7 +65,21 @@ siti-tools /path/to/input/file.mp4
 
 to run the tool. It will print JSON output containing info about SI/TI values and other statistics to `stdout`.
 
+You can pass any video file with a container that can be read by FFmpeg. For YUV files, see below.
+
 This works for 8-bit standard dynamic range (SDR) content, which will apply to most input files. However, this tool does not automatically handle input that is not 8-bit SDR content. For more info on that, see below.
+
+#### Usage with YUV files
+
+We don't recommend working with raw YUV files, as they do not carry the metadata required to decode them. Use Y4M files or any other container format that can be read by FFmpeg.
+
+To convert YUV into Y4M, use the basic command:
+
+```bash
+ffmpeg -f rawvideo -pix_fmt yuv420p -framerate 24 -video_size 1920x1080 -i input.yuv -c:v copy output.y4m
+```
+
+Adapt the parameters to your input file (i.e., the pixel format, framerate, and resolution).
 
 #### Usage for > 8-bit Content
 
