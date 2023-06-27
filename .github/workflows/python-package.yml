@@ -24,7 +24,7 @@ jobs:
       id: setup-ffmpeg
     - name: Install ffmpeg libs
       run: |
-        sudo apt-get install libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libavfilter-dev libswscale-dev libavresample-dev
+        sudo apt-get install libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libavfilter-dev libswscale-dev
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
