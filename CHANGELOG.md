@@ -1,6 +1,21 @@
 # Changelog
 
 
+## v0.2.2 (2023-06-27)
+
+* Update dependencies.
+
+* Update test decode function.
+
+* Explain usage with YUV files.
+
+* Add version support to CLI.
+
+* Add utility for converting JSON output to CSV.
+
+* Error on unsupported frame formats.
+
+
 ## v0.2.1 (2022-05-13)
 
 * Fix console script installation.
