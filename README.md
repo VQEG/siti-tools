@@ -29,7 +29,7 @@ Contents:
 ## Requirements
 
 - Python 3.8 or higher
-- FFmpeg 4.x libraries (to run `pyav`) — this does not work yet with FFmpeg 5.x, see https://github.com/PyAV-Org/PyAV/issues/817
+- FFmpeg libraries (v5 or higher)
 
 Under Ubuntu, to get ffmpeg libraries:
 
