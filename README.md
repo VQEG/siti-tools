@@ -67,9 +67,11 @@ to run the tool. It will print JSON output containing info about SI/TI values an
 
 You can pass any video file with a container that can be read by FFmpeg. For YUV files, see below.
 
+:warning: We are currently observing a bug with some videos that manifests in an error ("ValueError: cannot reshape array of size …"). See [this issue](https://github.com/VQEG/siti-tools/issues/17) for details. If you encounter this error, please use Y4M files as input instead.
+
 This works for 8-bit standard dynamic range (SDR) content, which will apply to most input files. However, this tool does not automatically handle input that is not 8-bit SDR content. For more info on that, see below.
 
-#### Usage with YUV files
+#### Usage with YUV or Y4M files
 
 We don't recommend working with raw YUV files, as they do not carry the metadata required to decode them. Use Y4M files or any other container format that can be read by FFmpeg.
 
@@ -80,6 +82,12 @@ ffmpeg -f rawvideo -pix_fmt yuv420p -framerate 24 -video_size 1920x1080 -i input
 ```
 
 Adapt the parameters to your input file (i.e., the pixel format, framerate, and resolution).
+
+If you just want to convert an existing (e.g. MP4) file into Y4M, use:
+
+```bash
+ffmpeg -i input.mp4 -pix_fmt yuv420p output.y4m
+```
 
 #### Usage for > 8-bit Content
 
