@@ -40,12 +40,17 @@ Under Ubuntu, to get ffmpeg libraries:
 
 Under macOS, it is recommended to install ffmpeg via [Homebrew](https://brew.sh):
 
-    brew install ffmpeg@4
-    export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@4/lib/pkgconfig"
+    brew install ffmpeg
 
 ## Installation
 
-Clone this repository and then:
+Directly install from Git:
+
+```bash
+pip3 install --user git+https://github.com/VQEG/siti-tools
+```
+
+Or clone this repository and then:
 
 ```bash
 pip3 install --user .
