@@ -90,7 +90,7 @@ Adapt the parameters to your input file (i.e., the pixel format, framerate, and 
 
 NOTE: If you are working with 10-bit content (e.g., if your input pixel format is `yuv420p10le`), you must add the `-strict -1` flag to the command above:
 ```bash
-ffmpeg -f rawvideo -pix_fmt yuv420p -framerate 24 -video_size 1920x1080 -i input.yuv -f yuv4mpegpipe -strict -1 output.y4m
+ffmpeg -f rawvideo -pix_fmt yuv420p10le -framerate 24 -video_size 1920x1080 -i input.yuv -f yuv4mpegpipe -strict -1 output.y4m
 ```
 
 If you just want to convert an existing (e.g. MP4) file into Y4M, use:
