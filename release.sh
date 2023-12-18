@@ -45,14 +45,14 @@ git commit -m "Bump version to ${INPUT_STRING}."
 git tag -a -m "Tag version ${INPUT_STRING}." "v$INPUT_STRING"
 
 # generate the changelog
-gitchangelog > CHANGELOG.md
+poetry run gitchangelog > CHANGELOG.md
 
 # add the changelog and amend it to the previous commit and tag
 git add CHANGELOG.md
 git commit --amend --no-edit
 
 # generate docs
-PYTHONPATH=. pdoc -o docs --docformat google siti_tools
+PYTHONPATH=. poetry run pdoc -o docs --docformat google siti_tools
 git add docs
 git commit --amend --no-edit
 
@@ -64,5 +64,5 @@ git push && git push --tags
 
 # upload to PyPi
 rm -rf dist/* build
-python3 setup.py sdist bdist_wheel
-python3 -m twine upload dist/*
+poetry run python3 setup.py sdist bdist_wheel
+poetry run python3 -m twine upload dist/*

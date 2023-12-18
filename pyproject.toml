@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "siti-tools"
-version = "0.2.2"
+version = "0.2.3"
 description = ""
 authors = ["Werner Robitza <werner.robitza@gmail.com>"]
 license = "MIT"

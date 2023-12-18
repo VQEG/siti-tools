@@ -1,6 +1,29 @@
 # Changelog
 
 
+## v0.2.3 (2023-12-18)
+
+* Update dependencies to include release deps.
+
+* Bump dependencies.
+
+* Update readme.
+
+* Fix issue #20 (#21)
+
+  * Remove `-c:v copy` from the FFmpeg command putting YUV content in a Y4M container.
+
+  Mention that `-strict -1` is necessary fot 10-bit pixel formats.
+
+  * Make sure the example for 10-bit pixel format actually uses a 10-bit pixel format
+
+* Fix README installation instructions.
+
+* Update readme, addresses #17.
+
+* Fix ffmpeg libs.
+
+
 ## v0.2.2 (2023-06-27)
 
 * Update dependencies.
