@@ -89,6 +89,7 @@ ffmpeg -f rawvideo -pix_fmt yuv420p -framerate 24 -video_size 1920x1080 -i input
 Adapt the parameters to your input file (i.e., the pixel format, framerate, and resolution).
 
 NOTE: If you are working with 10-bit content (e.g., if your input pixel format is `yuv420p10le`), you must add the `-strict -1` flag to the command above:
+
 ```bash
 ffmpeg -f rawvideo -pix_fmt yuv420p10le -framerate 24 -video_size 1920x1080 -i input.yuv -f yuv4mpegpipe -strict -1 output.y4m
 ```
@@ -345,44 +346,48 @@ The `-n auto` flag distributes the test to all cores. Remove it if you want to c
 
 ### What is SI/TI?
 
-The following info is given about SI / TI in ITU-T Recommendation P.910 ("Subjective video quality assessment methods for multimedia applications"):
+The following info is given about SI / TI in [ITU-T Recommendation P.910](https://www.itu.int/rec/T-REC-P.910) (10/2023) – "Subjective video quality assessment methods for multimedia applications". This is the most recent version of the document at the time of writing. Version 07/2022 has introduced significant changes to the SI/TI calculation, which are reflected in this repository.
 
-#### Spatial Information
+> **Spatial Information**: A measure that indicates the amount of spatial detail in a picture. It is usually higher for more spatially complex scenes. It is not meant to be a measure of entropy nor is it associated with the information defined in communication theory
 
-> The spatial perceptual information (SI) is based on the Sobel filter. Each video frame (luminance plane) at time n (Fn) is first filtered with the Sobel filter [Sobel(Fn)]. The standard deviation over the pixels (stdspace) in each Sobel-filtered frame is then computed. This operation is repeated for each frame in the video sequence and results in a time series of spatial information of the scene. The maximum value in the time series (maxtime) is chosen to represent the spatial information content of the scene. This process can be represented in equation form as:
+> **Temporal information**: A measure that indicates the number of temporal changes of a video sequence. It is usually higher for high motion sequences. It is not meant to be a measure of entropy nor associated with the information defined in communication theory.
 
-> ![](http://i.imgur.com/zRXcVJO.png)
+SI and TI are based on the Sobel filter, which is a simple edge detector. The Sobel filter is applied to the luminance channel of the input video, and the resulting values are aggregated to a single value. For a detailed calculation, see Annex B of ITU-T Rec. P.910 (10/2023)
 
-#### Temporal information
+Further, Clause 7.8 states:
 
-> The temporal perceptual information (TI) is based upon the motion difference feature, Mn(i, j), which is the difference between the pixel values (of the luminance plane) at the same location in space but at successive times or frames. Mn(i, j) as a function of time (n) is defined as:
+> The selection of test scenes is an important issue. In particular, the spatial information (SI) and temporal information (TI) of the scenes are critical parameters. These parameters play a crucial role in determining the amount of video compression that is possible (compressibility), and consequently, the level of impairment that is suffered when the scene is transmitted over a fixed-rate digital transmission service channel. Fair and relevant video test scenes must be chosen such that their SI and TI is consistent with the video services that the digital transmission service channel was intended to provide. The set of test scenes should span the full range of SI and TI of interest to users of the devices under test.
 
-> ![](http://i.imgur.com/MRsJtdT.png)
+Regarding the aggregation of SI/TI values, Clause 7.8.4 states:
 
-> here Fn(i, j) is the pixel at the ith row and jth column of nth frame in time.
-The measure of temporal information (TI) is computed as the maximum over time (maxtime) of the standard deviation over space (stdspace) of Mn(i, j) over all i and j.
+> Multiple SI and TI values per sequence may be aggregated into single numbers for SI and TI, respectively, by applying appropriate statistical measures such as the minimum, maximum, median, average, or percentiles.
+It is recommended to use the average as an aggregation measure.
 
-> <img src="https://i.imgur.com/XAnKWJw.png" height="19">
+If you have used a previous version of SI/TI, please consider:
 
-> More motion in adjacent frames will result in higher values of TI
+> Note that in the previous versions of Recommendation ITU-T P.910, the respective maximum value was recommended as aggregated score for SI and TI. (…) If the resulting SI and TI values are being compared to those provided in publications or with publicly available databases, deviations may stem from the previously recommended usage of the maximum.
+
+For further information, please refer to the ITU-T Rec. P.910 document.
 
 ### What is the purpose of this activity?
 
-The [No-Reference Metrics (NORM)](https://www.its.bldrdoc.gov/vqeg/projects/no-reference-metrics-norm.aspx) working group of the [Video Quality Expert Group (VQEG)](https://www.its.bldrdoc.gov/vqeg/vqeg-home.aspx) is currently investigating the Spatial Information (SI) and Temporal Information (TI) indicators defined in ITU-T Rec. P.910.
+The [No-Reference Metrics (NORM)](https://www.its.bldrdoc.gov/vqeg/projects/no-reference-metrics-norm.aspx) working group of the [Video Quality Expert Group (VQEG)](https://www.its.bldrdoc.gov/vqeg/vqeg-home.aspx) has investigated the Spatial Information (SI) and Temporal Information (TI) indicators defined in ITU-T Rec. P.910.
 
 SI and TI have been frequently used by the community to classify sets of video sequences or video databases, primarily for checking that the used material spans an appropriate range of spatiotemporal complexity before further processing the sequences (e.g., encoding them, presenting them to subjects). Since they are easy and quick to calculate, SI/TI are still very relevant today.
 
-VQEG has identified several limitations with the current definition of SI/TI, including the following:
+VQEG identified several limitations with the current definition of SI/TI, including the following:
 
-- It is not specified how to handle video with limited (16-235) vs. full range (0-255).
-- The applicable range of input bit depths (bits per channel) is not specified. This means that it is unclear how to handle content with different bit depths, in particular when comparing sequences of varying bit depth.
-- It is undefined how to handle high dynamic range (HDR) content, where the luminance information might be encoded differently compared to standard dynamic range (SDR).
+- It was not specified how to handle video with limited (16-235) vs. full range (0-255).
+- The applicable range of input bit depths (bits per channel) was not specified. This means that it was unclear how to handle content with different bit depths, in particular when comparing sequences of varying bit depth.
+- It was undefined how to handle high dynamic range (HDR) content, where the luminance information might be encoded differently compared to standard dynamic range (SDR).
 
-The overall aims of this activity are the following:
+The overall aims of this activity were the following:
 
 - Providing an updated set of calculation functions for SI and TI that cover limited/full range content, higher bit depths, and HDR sequences
 - Providing a set of test sequences and expected values (i.e., test vectors) in order to allow others to reproduce the results and verify their own implementation
 - Updating the ITU-T Rec. P.910 text to incorporate the new calculation functions
+
+Since ITU-T Rec. P.910 is a normative document, the updated text was be submitted to ITU-T Study Group 12 for approval and subsequently published in the ITU-T Rec. P.910 document version 07/2022.
 
 ### Contributors
 
@@ -390,6 +395,8 @@ Code contributors:
 
 - Werner Robitza
 - Lukas Krasula
+
+Many others have contributed to the discussion and updating of the ITU-T document. Thank you to all of them!
 
 ### Acknowledgements
 
@@ -404,7 +411,7 @@ If you use this software in your research, please include link to this repositor
 
 MIT License
 
-siti_tools, Copyright (c) 2021-2022 Werner Robitza, Lukas Krasula
+siti_tools, Copyright (c) 2021-2023 Werner Robitza, Lukas Krasula
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
