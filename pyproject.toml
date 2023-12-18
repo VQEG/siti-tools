@@ -13,15 +13,20 @@ av = "~10.0.0"
 tqdm = "~4.65.2"
 plotille = "~5.0.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.scripts]
+siti-tools = 'siti_tools.__main__:main'
+
+[tool.poetry.group.dev.dependencies]
+pypandoc = "^1.12"
+gitchangelog = "^3.0.4"
+pdoc = "^14.2.0"
+twine = "^4.0.2"
+wheel = "^0.42.0"
 pytest = "^7.4.3"
 flake8 = "^4.0.1"
 black = "^23.12.0"
 requests = "^2.31.0"
 pytest-xdist = "^2.5.0"
-
-[tool.poetry.scripts]
-siti-tools = 'siti_tools.__main__:main'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
