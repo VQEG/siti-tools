@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Generator
-import numpy as np
-import av
 import logging
+from typing import Generator
+
+import av
+import numpy as np
 
 logger = logging.getLogger("siti")
 
@@ -53,11 +54,10 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
         raise RuntimeError("No video streams found!")
 
     for frame in container.decode(video=0):
-        # FIXME: this has been determined experimentally, not sure if it is the
-        # correct way to do that -- the return values seem correct for a white/black
-        # checkerboard pattern
         if "yuv" not in str(frame.format.name):
-            raise RuntimeError(f"Decoding not yet possible for format {frame.format.name}! Only YUV is supported.")
+            raise RuntimeError(
+                f"Decoding not yet possible for format {frame.format.name}! Only YUV is supported."
+            )
 
         if "p10" in str(frame.format.name):
             datatype = np.uint16
@@ -66,18 +66,20 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
         else:
             datatype = np.uint8
 
-        try:
-            yield (
-                # The code commented out below does the "standard" conversion of YUV
-                # to grey, using weighting, but it does not actually use the correct
-                # luminance-only Y values.
-                # frame.to_ndarray(format="gray")
+        buf_width = frame.planes[0].line_size
+        bytes_per_pixel = 1
+        frame_width = frame.planes[0].width * bytes_per_pixel
+        arr = np.frombuffer(frame.planes[0], datatype)
+        if buf_width != frame_width:
+            arr = arr.reshape(-1, buf_width)[:, :frame_width]
 
-                # choose the Y plane (the first one)
-                np.frombuffer(frame.planes[0], datatype)
-                .reshape(frame.height, frame.width).astype("int")
-            )
-        except ValueError as e:
-            raise RuntimeError(
-                f"Cannot decode frame. Have you specified the bit depth correctly? Original error: {e}"
-            )
+        yield (
+            # The code commented out below does the "standard" conversion of YUV
+            # to grey, using weighting, but it does not actually use the correct
+            # luminance-only Y values.
+            # frame.to_ndarray(format="gray")
+            # choose the Y plane (the first one)
+            # np.frombuffer(frame.planes[0], datatype)
+            # .reshape(frame.height, frame.width).astype("int")
+            np.ascontiguousarray(arr.reshape(-1, frame_width))
+        )
