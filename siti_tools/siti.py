@@ -482,19 +482,24 @@ class SiTiCalculator:
         Returns:
             frame_data: pixel values in the physical luminance up to 10,000 cd/m^2
         """
-        frame_data = np.maximum(frame_data, 0.0)
-        frame_data = np.minimum(frame_data, 1.0)
 
         a = 0.17883277
         b = 0.02372241
         c = 1.00429347
-        gamma = 1.2
+        if l_max <= 1000.0:
+            gamma = 1.2
+        else:
+            gamma = 1.2 + 0.42 * np.log10(l_max/1000.0)
 
         frame_data = (frame_data <= 0.5) * (np.power(frame_data, 2.0) / 3.0) + (
             frame_data > 0.5
         ) * (np.exp((frame_data - c) / a) - b)
 
-        frame_data = (l_max - l_min) * np.power(frame_data, gamma - 1.0) + l_min
+        # NOTE: The following is only valid when the function is applied to the Y channel.
+        # If frame_data was a color channel (R, G, or B), the correct implementation would be:
+        # (l_max - l_min) * np.power(Y, gamma - 1.0) * frame_data + l_min,
+        # where Y would be obtained from linearized R, G, B channels.
+        frame_data = (l_max - l_min) * np.power(frame_data, gamma) + l_min
 
         return frame_data
 
