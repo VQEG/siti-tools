@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.3.0 (2024-08-01)
+
+* Chore: update dependencies.
+
+* Fix the implementation of the HLG EOTF function (#23)
+
+  * Fix the implementation of the HLG EOTF function
+
+  * Fix the tests for HLG
+
+  ---------
+
+
 ## v0.2.3 (2023-12-18)
 
 * Update dependencies to include release deps.
