@@ -1,7 +1,7 @@
-black~=21.10b0
-pytest~=6.2.2
-pdoc~=6.3.2
-requests~=2.25.1
+black~=24.10.0
+pytest~=8.0.0
+pdoc~=14.0.0
+requests~=2.32.0
 pystache
 gitchangelog
 pytest-xdist

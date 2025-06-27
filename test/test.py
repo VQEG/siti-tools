@@ -27,7 +27,7 @@
 import sys
 import os
 from typing import Dict, List, Tuple, Union
-from numpy import NaN
+from numpy import nan as NaN
 import pytest
 import requests
 from tqdm import tqdm
