@@ -18,7 +18,8 @@
         "l_min": 0.1,
         "gamma": 2.4,
         "pu21_mode": "banding",
-        "version": "0.1.2"
+        "legacy": false,
+        "version": "0.3.0"
     },
     "input_file": "noise.y4m"
 }

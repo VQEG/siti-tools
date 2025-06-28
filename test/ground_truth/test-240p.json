@@ -1,17 +1,12 @@
 {
     "si": [
-        178.50055531682995,
-        178.50055531682995,
-        178.50055531682995
+        71.36044475463157
     ],
-    "ti": [
-        0.0,
-        0.0
-    ],
+    "ti": [],
     "settings": {
         "calculation_domain": "pq",
         "hdr_mode": "sdr",
-        "bit_depth": 10,
+        "bit_depth": 8,
         "color_range": "full",
         "eotf_function": "bt1886",
         "l_max": 300,
@@ -21,5 +16,5 @@
         "legacy": false,
         "version": "0.3.0"
     },
-    "input_file": "checkerboard-8x8-10bpp.y4m"
+    "input_file": "test-240p.y4m"
 }
