@@ -395,6 +395,7 @@ Code contributors:
 
 - Werner Robitza
 - Lukas Krasula
+- Cosmin Stejerean
 
 Many others have contributed to the discussion and updating of the ITU-T document. Thank you to all of them!
 
@@ -411,7 +412,7 @@ If you use this software in your research, please include link to this repositor
 
 MIT License
 
-siti_tools, Copyright (c) 2021-2023 Werner Robitza, Lukas Krasula
+siti_tools, Copyright (c) 2021-2025 Werner Robitza, Lukas Krasula, Cosmin Stejerean
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

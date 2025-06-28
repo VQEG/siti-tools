@@ -2,7 +2,7 @@
 name = "siti-tools"
 version = "0.3.0"
 description = ""
-authors = ["Werner Robitza <werner.robitza@gmail.com>"]
+authors = ["Werner Robitza", "Lukas Krasula", "Cosmin Stejerean"]
 license = "MIT"
 
 [tool.poetry.dependencies]
