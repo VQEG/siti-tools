@@ -28,7 +28,7 @@ Contents:
 
 ## Requirements
 
-- Python 3.8 or higher
+- Python 3.10.1 or higher
 - FFmpeg libraries (v5 or higher)
 
 Under Ubuntu, to get ffmpeg libraries:
