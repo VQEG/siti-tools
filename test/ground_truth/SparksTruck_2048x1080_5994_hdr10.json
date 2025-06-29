@@ -27,7 +27,7 @@
         "gamma": 2.4,
         "pu21_mode": "banding",
         "legacy": false,
-        "version": "0.1.3"
+        "version": "0.3.0"
     },
     "input_file": "SparksTruck_2048x1080_5994_hdr10.y4m"
 }

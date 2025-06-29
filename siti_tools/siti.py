@@ -100,8 +100,12 @@ class SiTiCalculator:
     DEFAULT_L_MIN_HDR = 0.01
     DEFAULT_L_MAX_HDR = 1000.0
 
-    LIMITED_RANGE_MIN = 16 / 255
-    LIMITED_RANGE_MAX = 235 / 255
+    # Limited range values for different bit depths
+    LIMITED_RANGE = {
+        8: {"min": 16, "max": 235},
+        10: {"min": 64, "max": 940},
+        12: {"min": 256, "max": 3760},
+    }
 
     @staticmethod
     def from_settings(settings: Dict):
@@ -519,9 +523,32 @@ class SiTiCalculator:
 
     def normalize_between_0_1(self, frame_data: Union[np.ndarray, float]):
         """
-        Normalize frame data in the range [0, x] to [0, 1], based on bit depth.
+        Normalize frame data in the range [0, x] to [0, 1], based on bit depth and color range.
+        For limited range, this directly converts from limited range values to [0, 1].
         """
-        return frame_data / (2**self.bit_depth - 1)
+        if self.color_range == ColorRange.LIMITED:
+            # Get the limited range values for the current bit depth
+            limited_min = self.LIMITED_RANGE[self.bit_depth]["min"]
+            limited_max = self.LIMITED_RANGE[self.bit_depth]["max"]
+
+            # Check if input is within expected limited range
+            input_min = np.min(frame_data)
+            input_max = np.max(frame_data)
+
+            # Provide a warning if values are outside limited range
+            if input_min < limited_min or input_max > limited_max:
+                raise RuntimeError(
+                    f"Input appears to be full range, but it is treated as limited range! "
+                    f"Input range is [{int(input_min)}-{int(input_max)}]. "
+                    f"Expected range for {self.bit_depth}-bit limited content [{limited_min}-{limited_max}]. "
+                    "Specify the range as full instead."
+                )
+
+            # Normalize from limited range directly to [0, 1]
+            return (frame_data - limited_min) / (limited_max - limited_min)
+        else:
+            # Full range: normalize from [0, 2^bit_depth - 1] to [0, 1]
+            return frame_data / (2**self.bit_depth - 1)
 
     def add_frame_callback(
         self, callback_fn: Callable[[float, Union[float, None], int], None]
@@ -532,39 +559,6 @@ class SiTiCalculator:
             callback_fn (Callable[[float, Union[float, None], int], None]): The function that should get called. It will receive SI, TI and the frame number.
         """
         self.callbacks.append(callback_fn)
-
-    def handle_limited_range(self, frame_data) -> np.ndarray:
-        """
-        Transforms data from limited range to full range. We expect the input to be in [16/255, 235/255] already.
-        Apply this to limited range content only! If we exceed the limited range, an error will be raised.
-
-        Args:
-            frame_data (np.ndarray): The frame data in limited range.
-
-        Returns:
-            frame_data: The frame data in full range between [0, 1].
-        """
-        input_min = np.min(frame_data)
-        input_max = np.max(frame_data)
-        if (input_min + 0.001 < self.LIMITED_RANGE_MIN) or (
-            input_max - 0.001 > self.LIMITED_RANGE_MAX
-        ):
-            # inform the user about the original range
-            raise RuntimeError(
-                "Input appears to be full range, but it is treated as limited range SDR! "
-                f"Input range is [{int(self.normalize_to_original_range(input_min))}-{int(self.normalize_to_original_range(input_max))}]. "
-                f"Expected range for limited content [{int(self.normalize_to_original_range(self.LIMITED_RANGE_MIN))}-{int(self.normalize_to_original_range(self.LIMITED_RANGE_MAX))}]. "
-                "Specify the range as full instead."
-            )
-        # scale up to full range
-        frame_data = np.clip(
-            (frame_data - self.LIMITED_RANGE_MIN)
-            / (self.LIMITED_RANGE_MAX - self.LIMITED_RANGE_MIN),
-            0,
-            1,
-        )
-
-        return frame_data
 
     @staticmethod
     def plot_histogram(frame_data: np.ndarray) -> str:
@@ -607,22 +601,13 @@ class SiTiCalculator:
 
             # Normalize frame data according to bit depth between 0 and 1.
             # This will transform [0, 255] to [0, 1], and [0, 1023] to [0, 1] etc.
+            # For limited range, this directly converts from limited range values to [0, 1].
             if not self.legacy:
                 frame_data = self.normalize_between_0_1(frame_data)
 
                 if current_frame == 0:
                     logger.debug("Frame data after normalization between 0 and 1")
                     self._log_frame_data(frame_data)
-
-                # convert limited to full range
-                if self.color_range == ColorRange.LIMITED:
-                    frame_data = self.handle_limited_range(frame_data)
-                    if current_frame == 0:
-                        logger.debug("Frame data after limited-range normalization")
-                        self._log_frame_data(frame_data)
-                else:
-                    # in full range, we do not have to further process the data
-                    pass
             else:
                 if self.color_range == ColorRange.LIMITED:
                     # legacy mode, apply the old way of normalizing data between 16-235
