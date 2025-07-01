@@ -602,28 +602,16 @@ class SiTiCalculator:
             # Normalize frame data according to bit depth between 0 and 1.
             # This will transform [0, 255] to [0, 1], and [0, 1023] to [0, 1] etc.
             # For limited range, this directly converts from limited range values to [0, 1].
-            if not self.legacy:
-                frame_data = self.normalize_between_0_1(frame_data)
+            frame_data = self.normalize_between_0_1(frame_data)
 
-                if current_frame == 0:
-                    logger.debug("Frame data after normalization between 0 and 1")
-                    self._log_frame_data(frame_data)
+            if current_frame == 0:
+                logger.debug("Frame data after normalization between 0 and 1")
+                self._log_frame_data(frame_data)
+
+            if self.legacy:
+                # in legacy mode we'll compute the values directly in the SDR domain
+                pass
             else:
-                if self.color_range == ColorRange.LIMITED:
-                    # legacy mode, apply the old way of normalizing data between 16-235
-                    input_min = np.min(frame_data)
-                    input_max = np.max(frame_data)
-                    if input_min < 16 or input_max > 235:
-                        raise RuntimeError(
-                            f"Input appears to be full range ([{input_min}, {input_max}]), specify --color-range=full!"
-                        )
-                    # convert to grey by assumng limited range input
-                    frame_data = np.around((frame_data - 16) / ((235 - 16) / 255))
-                else:
-                    # in full range, we do not have to further process the data
-                    pass
-
-            if not self.legacy:
                 if self.hdr_mode == HdrMode.SDR:
                     frame_data = SiTiCalculator.apply_display_model(
                         frame_data,
@@ -669,28 +657,24 @@ class SiTiCalculator:
                 else:
                     raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
 
-            if not self.legacy:
-                si_value = self.normalize_to_original_si_range(
-                    SiTiCalculator.si(frame_data)
-                )
-            else:
-                si_value = SiTiCalculator.si(frame_data)
+
+            si_value = self.normalize_to_original_si_range(
+                SiTiCalculator.si(frame_data)
+            )
+
             if current_frame != 0:
-                if not self.legacy:
-                    ti_value = self.normalize_to_original_si_range(
-                        cast(float, SiTiCalculator.ti(frame_data, previous_frame_data))
-                    )
-                else:
-                    ti_value = SiTiCalculator.ti(frame_data, previous_frame_data)
+                ti_value = self.normalize_to_original_si_range(
+                    cast(float, SiTiCalculator.ti(frame_data, previous_frame_data))
+                )
             else:
                 ti_value = None
 
             logger.debug(
-                f"SI value {np.around(SiTiCalculator.si(frame_data), 3)}, normalized: {np.around(self.normalize_to_original_si_range(SiTiCalculator.si(frame_data)), 3)}"
+                f"SI value {np.around(si_value, 3)}"
             )
             if ti_value is not None:
                 logger.debug(
-                    f"TI value {np.around(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data)), 3)}, normalized: {np.around(self.normalize_to_original_si_range(cast(float, SiTiCalculator.ti(frame_data, previous_frame_data))), 3)}"
+                    f"TI value {np.around(ti_value, 3)}"
                 )
 
             self.si_values.append(cast(float, si_value))
