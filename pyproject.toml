@@ -45,7 +45,7 @@ siti-tools = "siti_tools.__main__:main"
 [dependency-groups]
 dev = [
     "pytest>=8.0.0,<9",
-    "black~=24.10.0",
+    "ruff~=0.9.0",
     "pdoc~=14.0.0",
     "requests~=2.32.0",
     "pytest-xdist>=3.6.0",

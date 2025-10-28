@@ -57,7 +57,9 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
         # correct way to do that -- the return values seem correct for a white/black
         # checkerboard pattern
         if "yuv" not in str(frame.format.name):
-            raise RuntimeError(f"Decoding not yet possible for format {frame.format.name}! Only YUV is supported.")
+            raise RuntimeError(
+                f"Decoding not yet possible for format {frame.format.name}! Only YUV is supported."
+            )
 
         if "p10" in str(frame.format.name):
             datatype = np.uint16
@@ -72,10 +74,10 @@ def read_container(input_file: str) -> Generator[np.ndarray, None, None]:
                 # to grey, using weighting, but it does not actually use the correct
                 # luminance-only Y values.
                 # frame.to_ndarray(format="gray")
-
                 # choose the Y plane (the first one)
                 np.frombuffer(frame.planes[0], datatype)
-                .reshape(frame.height, frame.width).astype("int")
+                .reshape(frame.height, frame.width)
+                .astype("int")
             )
         except ValueError as e:
             raise RuntimeError(

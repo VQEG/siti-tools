@@ -493,7 +493,7 @@ class SiTiCalculator:
         if l_max <= 1000.0:
             gamma = 1.2
         else:
-            gamma = 1.2 + 0.42 * np.log10(l_max/1000.0)
+            gamma = 1.2 + 0.42 * np.log10(l_max / 1000.0)
 
         frame_data = (frame_data <= 0.5) * (np.power(frame_data, 2.0) / 3.0) + (
             frame_data > 0.5
@@ -593,7 +593,7 @@ class SiTiCalculator:
 
         current_frame = 0
         for frame_data in read_container(input_file):
-            self.verbose and logger.debug(f"Frame {current_frame+1}")
+            self.verbose and logger.debug(f"Frame {current_frame + 1}")
 
             if current_frame == 0:
                 logger.debug("Original frame data")
@@ -657,7 +657,6 @@ class SiTiCalculator:
                 else:
                     raise RuntimeError(f"Invalid HDR mode '{self.hdr_mode}'")
 
-
             si_value = self.normalize_to_original_si_range(
                 SiTiCalculator.si(frame_data)
             )
@@ -669,13 +668,9 @@ class SiTiCalculator:
             else:
                 ti_value = None
 
-            logger.debug(
-                f"SI value {np.around(si_value, 3)}"
-            )
+            logger.debug(f"SI value {np.around(si_value, 3)}")
             if ti_value is not None:
-                logger.debug(
-                    f"TI value {np.around(ti_value, 3)}"
-                )
+                logger.debug(f"TI value {np.around(ti_value, 3)}")
 
             self.si_values.append(cast(float, si_value))
             if ti_value is not None:

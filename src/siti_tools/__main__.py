@@ -89,7 +89,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog="siti-tools",
         description=f"siti-tools v{prog_version}",
-        formatter_class=CustomArgsFormatter
+        formatter_class=CustomArgsFormatter,
     )
 
     group_io = parser.add_argument_group("input/output")
@@ -134,9 +134,7 @@ def main():
     group_io.add_argument(
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
     )
-    group_io.add_argument(
-        "--version", action="version", version=prog_version
-    )
+    group_io.add_argument("--version", action="version", version=prog_version)
 
     group_general = parser.add_argument_group("Video/SI options")
     group_general.add_argument(
