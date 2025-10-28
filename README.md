@@ -160,10 +160,10 @@ You can further tune the HDR parameters. The most important ones are the assumed
 Run `siti-tools -h` for a full list of command line options:
 
 ```
-usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [--max-frames MAX_FRAMES] [-f {json,csv}] [-v]
-                  [--show-histogram] [-q] [--version] [-c {pq,pu21}] [-m {sdr,hdr10,hlg}]
-                  [-b {8,10,12}] [-r {limited,full}] [--legacy] [-e {bt1886,inv_srgb}] [-g GAMMA]
-                  [--l-max L_MAX] [--l-min L_MIN]
+usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [--max-frames MAX_FRAMES] [-f {json,csv}]
+                  [-o OUTPUT_FILE] [-v] [--show-histogram] [-q] [--version] [-c {pq,pu21}]
+                  [-m {sdr,hdr10,hlg}] [-b {8,10,12}] [-r {limited,full}] [--legacy]
+                  [-e {bt1886,inv_srgb}] [-g GAMMA] [--l-max L_MAX] [--l-min L_MIN]
                   [--pu21-mode {banding,banding_glare,peaks,peaks_glare}]
                   input
 
@@ -183,6 +183,8 @@ input/output:
                         the command-line
   -f, --format {json,csv}
                         Choose the output format (default: json)
+  -o, --output-file OUTPUT_FILE
+                        Write output to file instead of stdout
   -v, --verbose         Show debug info on stderr (default: False)
   --show-histogram      Show a histogram for the first frame (computation-intensive, implies
                         --verbose) (default: False)
@@ -220,7 +222,13 @@ PU21 options:
 
 The tool will output a valid JSON object on `stdout`, with SI and TI scores contained in an array.
 
-To redirect the output to a file, use shell redirection:
+To write the output to a file, you can use the `--output-file` / `-o` option:
+
+```bash
+siti-tools input1.mp4 -o input1.json
+```
+
+Alternatively, you can use shell redirection:
 
 ```bash
 siti-tools input1.mp4 > input1.json
@@ -257,15 +265,15 @@ Note that the first frame has no TI value by definition, so a file with two fram
 In the `settings` key, you will find information on how the calculation was done. This is useful for allowing values to be reproduced. You can use these settings for further calculation runs. For instance, if you want to use the settings used for `input1` for `input2`, run the following:
 
 ```bash
-siti-tools input1.mp4 > input1.json
-siti-tools input2.mp4 --settings input1.json > input2.json
+siti-tools input1.mp4 -o input1.json
+siti-tools input2.mp4 --settings input1.json -o input2.json
 ```
 
 You can also generate CSV output, which will contain fewer columns but is easier to parse.
 
 ```bash
-siti-tools input1.mp4 --format csv > input1.csv
-siti-tools input2.mp4 --settings input1.json --format csv > input2.csv
+siti-tools input1.mp4 --format csv -o input1.csv
+siti-tools input2.mp4 --settings input1.json --format csv -o input2.csv
 ```
 
 The output might look like this:

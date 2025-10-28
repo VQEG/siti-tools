@@ -124,6 +124,12 @@ def main():
         default="json",
     )
     group_io.add_argument(
+        "-o",
+        "--output-file",
+        help="Write output to file instead of stdout",
+        type=str,
+    )
+    group_io.add_argument(
         "-v", "--verbose", action="store_true", help="Show debug info on stderr"
     )
     group_io.add_argument(
@@ -286,12 +292,22 @@ def main():
 
     if cli_args.format == "json":
         results = si_ti_calculator.get_results()
-        print(json.dumps(results, indent=4))
+        output = json.dumps(results, indent=4)
     elif cli_args.format == "csv":
         results = si_ti_calculator.get_csv_results()
-        print(results)
+        output = results
     else:
         raise RuntimeError(f"No such format {cli_args.format}")
+
+    if cli_args.output_file:
+        with open(cli_args.output_file, "w") as output_file:
+            output_file.write(output)
+            if cli_args.format == "json":
+                output_file.write("\n")
+        logger = logging.getLogger("siti")
+        logger.info(f"Output written to: {cli_args.output_file}")
+    else:
+        print(output)
 
 
 if __name__ == "__main__":
