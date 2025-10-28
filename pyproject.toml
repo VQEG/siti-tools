@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "siti-tools"
-version = "0.4.1"
+version = "0.5.0"
 description = "Functions to calculate Spatial Information / Temporal Information according to ITU-T P.910"
 readme = "README.md"
 authors = [

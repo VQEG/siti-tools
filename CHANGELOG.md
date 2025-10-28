@@ -1,3 +1,14 @@
+## [0.5.0] - 2025-10-28
+
+### Features
+
+- Feat: add global statistics to output
+
+
+### Miscellaneous Tasks
+
+- Chore: bump version to 0.5.0
+
 ## [0.4.1] - 2025-10-28
 
 ### Bug Fixes
