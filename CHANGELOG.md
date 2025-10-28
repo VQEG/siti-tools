@@ -1,3 +1,18 @@
+## [0.4.1] - 2025-10-28
+
+### Bug Fixes
+
+- Fix: dynamic versioning
+
+
+### Miscellaneous Tasks
+
+- Ci: fix ffmpeg installation
+
+- Ci: increase thresholds for tests
+
+- Chore: bump version to 0.4.1
+
 ## [0.4.0] - 2025-10-28
 
 ### Bug Fixes
