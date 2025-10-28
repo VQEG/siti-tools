@@ -1,4 +1,4 @@
-## [unreleased]
+## [0.4.0] - 2025-10-28
 
 ### Bug Fixes
 
@@ -8,6 +8,22 @@
   * fix generate ground truth script to run on case insensitive filesystems like macOS, and also account for hdr10
   * update ground truth files
   * increase precision of tests
+
+- Fix: do not imply verbose on showing histogram
+
+
+### Features
+
+- Feat: provide an --output-file option
+
+
+### Miscellaneous Tasks
+
+- Chore: move to uv
+
+- Chore: reformat with ruff, update CI
+
+- Chore: bump version to 0.4.0
 
 
 ### Other
