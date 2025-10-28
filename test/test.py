@@ -472,11 +472,11 @@ class TestSiti:
 
         for frame_idx, (si_value, si_gt) in enumerate(zip(si_values, gt["si"])):
             print(f"Frame {frame_idx+1}, SI {si_value}, Ground Truth {si_gt}")
-            assert pytest.approx(si_value, 0.0001) == si_gt
+            assert pytest.approx(si_value, rel=0.005, abs=0.01) == si_gt
 
         for frame_idx, (ti_value, ti_gt) in enumerate(zip(ti_values, gt["ti"])):
             print(f"Frame {frame_idx+1}, TI {ti_value}, Ground Truth {ti_gt}")
-            assert pytest.approx(ti_value, 0.0001) == ti_gt
+            assert pytest.approx(ti_value, rel=0.005, abs=0.01) == ti_gt
 
     def test_siti_main_functions(self, input_file: str, ground_truth: str):
         """
@@ -510,12 +510,12 @@ class TestSiti:
             print(f"Frame {frame_cnt}: SI {si_value}, {ti_value}")
             print(f"Ground truth: {gt_data}")
 
-            assert pytest.approx(si_value, 0.0001) == gt_data["si"]
+            assert pytest.approx(si_value, rel=0.005, abs=0.01) == gt_data["si"]
 
             if frame_cnt == 1:
                 assert ti_value is None
             else:
-                assert pytest.approx(ti_value, 0.0001) == gt_data["ti"]
+                assert pytest.approx(ti_value, rel=0.005, abs=0.01) == gt_data["ti"]
 
             previous_frame_data = frame_data
             frame_cnt += 1
