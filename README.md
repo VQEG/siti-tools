@@ -81,6 +81,7 @@ siti-tools /path/to/input/file.mp4
 ```
 
 to run the tool. It will print JSON output containing info about SI/TI values and other statistics to `stdout`.
+Progress will be printed to `stderr`.
 
 You can pass any video file with a container that can be read by FFmpeg. For YUV files, see below.
 

@@ -129,7 +129,7 @@ def main():
     group_io.add_argument(
         "--show-histogram",
         action="store_true",
-        help="Show a histogram for the first frame (computation-intensive, implies --verbose)",
+        help="Show a histogram for the first frame (computation-intensive)",
     )
     group_io.add_argument(
         "-q", "--quiet", action="store_true", help="Do not show progress bar"
@@ -266,7 +266,7 @@ def main():
             legacy=cli_args.legacy,
         )
 
-    if not cli_args.quiet:
+    if not cli_args.quiet and not cli_args.show_histogram:
         # render the maximum in the progress bar, rather than just an iterator
         overall_max_frames = max(
             cli_args.num_frames if cli_args.num_frames is not None else 0,

@@ -140,15 +140,12 @@ class SiTiCalculator:
             gamma (float, optional): Set the BT.1886 gamma. Defaults to 2.4.
             pu21_mode (Pu21Mode, optional): Set the default PU21 mode. Defaults to BANDING.
             verbose (bool, optional): Show verbose logging for the first frame.
-            show_histogram (bool, optional): Show a histogram for the first frame (computation-intensive, implies verbose=True).
+            show_histogram (bool, optional): Show a histogram for the first frame (computation-intensive).
             legacy (bool, optional): Use legacy SI/TI calculation. Defaults to False.
         """
         self.verbose = verbose
         self.show_histogram = show_histogram
         self.legacy = legacy
-
-        if self.show_histogram:
-            self.verbose = True
 
         self.callbacks: List[Callable] = []
 
@@ -736,4 +733,4 @@ class SiTiCalculator:
             f"  [{np.around(np.min(frame_data), 3)}, {np.around(np.max(frame_data), 3)}], mean {np.around(np.mean(frame_data), 3)}, median {np.around(np.median(frame_data), 3)}"
         )
         if self.show_histogram:
-            logger.debug("\n" + SiTiCalculator.plot_histogram(frame_data))
+            logger.info("\n" + SiTiCalculator.plot_histogram(frame_data))
