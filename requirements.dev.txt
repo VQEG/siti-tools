@@ -1,7 +1,0 @@
-black~=24.10.0
-pytest~=8.0.0
-pdoc~=14.0.0
-requests~=2.32.0
-pystache
-gitchangelog
-pytest-xdist

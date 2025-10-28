@@ -1,257 +1,336 @@
-# Changelog
+## [unreleased]
+
+### Bug Fixes
+
+- Fix limited range normalization (#26)
+
+  * normalize to limited range in the 0-1 conversion to fix 10bit normalization differences
+  * fix generate ground truth script to run on case insensitive filesystems like macOS, and also account for hdr10
+  * update ground truth files
+  * increase precision of tests
 
 
-## v0.3.0 (2024-08-01)
+### Other
 
-* Chore: update dependencies.
+- Upgrade dependencies (#24)
 
-* Fix the implementation of the HLG EOTF function (#23)
+  * upgrade dependencies
+
+  * update github workflow to use python 3.10+
+
+  * bump versions for actions
+
+- Add @cosmin, update authors
+
+- Bump python version
+
+- Unify handling of legacy mode and fix rounding issues (#27)
+
+## [0.3.0] - 2024-08-01
+
+### Miscellaneous Tasks
+
+- Chore: update dependencies
+
+
+### Other
+
+- Fix the implementation of the HLG EOTF function (#23)
 
   * Fix the implementation of the HLG EOTF function
 
   * Fix the tests for HLG
 
-  ---------
+---------
+
+Co-authored-by: Lukas <L.Krasula@gmail.com>
+
+- Bump version to 0.3.0
+
+## [0.2.3] - 2023-12-18
+
+### Bug Fixes
+
+- Fix ffmpeg libs
+
+- Fix README installation instructions
 
 
-## v0.2.3 (2023-12-18)
+### Other
 
-* Update dependencies to include release deps.
+- Update readme, addresses #17
 
-* Bump dependencies.
-
-* Update readme.
-
-* Fix issue #20 (#21)
+- Fix issue #20 (#21)
 
   * Remove `-c:v copy` from the FFmpeg command putting YUV content in a Y4M container.
 
-  Mention that `-strict -1` is necessary fot 10-bit pixel formats.
+Mention that `-strict -1` is necessary fot 10-bit pixel formats.
 
   * Make sure the example for 10-bit pixel format actually uses a 10-bit pixel format
 
-* Fix README installation instructions.
+- Update readme
 
-* Update readme, addresses #17.
+- Bump dependencies
 
-* Fix ffmpeg libs.
+- Update dependencies to include release deps
 
+- Bump version to 0.2.3.
 
-## v0.2.2 (2023-06-27)
+## [0.2.2] - 2023-06-27
 
-* Update dependencies.
+### Other
 
-* Update test decode function.
+- Error on unsupported frame formats
 
-* Explain usage with YUV files.
+- Add utility for converting JSON output to CSV
 
-* Add version support to CLI.
+- Add version support to CLI
 
-* Add utility for converting JSON output to CSV.
+- Explain usage with YUV files
 
-* Error on unsupported frame formats.
+- Update test decode function
 
+- Update dependencies
 
-## v0.2.1 (2022-05-13)
+- Bump version to 0.2.2
 
-* Fix console script installation.
+## [0.2.1] - 2022-05-13
 
-* Fix link in setup.py.
+### Bug Fixes
 
-* Update README.
+- Fix link in setup.py
 
+- Fix console script installation
 
-## v0.2.0 (2022-05-03)
 
-* Check for pypandoc on release.
+### Other
 
-* Fix CI setup (#14)
+- Update README
 
-* CI: support only Python 3.8 and higher.
+- Bump version to 0.2.1.
 
-* Fix broken link.
+## [0.2.0] - 2022-05-03
 
-* Merge branch 'siti2020'
+### Bug Fixes
 
-* Update README links.
+- Fix test functions
 
-* Minor code style.
+- use JSON for testing the complex class functions
+- fall back to one video for testing the simple functions
+- prepare using other videos for testing
 
-* Code formatting and note.
+- Fixes for 10bpp reading, fixes #12
 
-* ITU-T --> ITU-R.
+- Fix unit tests
 
-* Improve docs and tests.
+- Fix formula for EOTF output
 
-* Add profiling test.
+- Fix issue with CSV output
 
-* Update README.md.
+- Fix call of OETF, fix tests
 
-* Update release script.
+- Fix logs
 
-* Add poetry environment.
+- Fix broken link
 
-* Type error.
+- Fix CI setup (#14)
 
-* Improve logs.
 
-* Fix logs.
+### Other
 
-* Add legacy mode.
+- Update README links
 
-* Format code.
+- Implement first conversion functions
 
-* Update README.
+- Implementation of eotf_1886, eotf_inv_srgb, eotf_hlg, and oetf_pq
 
-* Add option for total frame count in tqdm bar.
+- Update LICENSE and README
 
-* Update for newer ffmpeg, update pip.
+- Add new class-based calculation and results
 
-* Fix call of OETF, fix tests.
+add more CLI flags
 
-* Remove superfluous scaling for PU21.
+rework classes
 
-* Fix issue with CSV output.
+- Convert to 0-1 range
 
-* Add type casts for type checks.
+This converts values into 0-1 for EOTF/OETF handling, and then scales everything
+up to 0-255 again for output, regardless of original bit depth.
 
-* Make logger global.
+- Allow reusing settings from previous run, fixes #10
 
-* Update README.
+- Add CLI documentation and entry point
 
-* Add histogram plots.
+- Update test suite
 
-* Fix formula for EOTF output.
+- Remove import
 
-* Add progress bar/iterator.
+- Update requirements
 
-* Add CSV output functionality.
+- Add note on input values
 
-* Add logging and fix error with l_min/l_max conversion.
+- Simplify test functions
 
-* Add further test content.
+- Add oetf_pu21
 
-* Fix unit tests.
+- Add typing support for PU21
 
-* Update README and docs.
+- Remove comment
 
-* Fixes for 10bpp reading, fixes #12.
+- Add options to select PU21
 
-* Update requirements.
+- Limit download size of test videos
 
-* Update test set, fix reading function for Y4M.
+- Update dev requirements
 
-* Update test functions.
+- Remove unused import
 
-* Print more info during tests.
+- Print more info during tests
 
-* Remove unused import.
+- Update test functions
 
-* Update dev requirements.
+- Update test set, fix reading function for Y4M
 
-* Fix test functions.
+- Update requirements
 
-  - use JSON for testing the complex class functions
-  - fall back to one video for testing the simple functions
-  - prepare using other videos for testing
+- Update README and docs
 
-* Limit download size of test videos.
+- Add further test content
 
-* Add options to select PU21.
+- Add logging and fix error with l_min/l_max conversion
 
-* Remove comment.
+- Add CSV output functionality
 
-* Add typing support for PU21.
+- Add progress bar/iterator
 
-* Add oetf_pu21.
+- Add histogram plots
 
-* Simplify test functions.
+- Update README
 
-* Add note on input values.
+- Make logger global
 
-* Update requirements.
+- Add type casts for type checks
 
-* Remove import.
+- Remove superfluous scaling for PU21
 
-* Update test suite.
+- Update for newer ffmpeg, update pip
 
-* Add CLI documentation and entry point.
+- Add option for total frame count in tqdm bar
 
-* Allow reusing settings from previous run, fixes #10.
+- Update README
 
-* Convert to 0-1 range.
+- Format code
 
-  This converts values into 0-1 for EOTF/OETF handling, and then scales everything
-  up to 0-255 again for output, regardless of original bit depth.
+- Add legacy mode
 
-* Add new class-based calculation and results.
+- Improve logs
 
-  add more CLI flags
+- Type error
 
-  rework classes
+- Add poetry environment
 
-* Update LICENSE and README.
+- Update release script
 
-* Implementation of eotf_1886, eotf_inv_srgb, eotf_hlg, and oetf_pq.
+- Update README.md
 
-* Implement first conversion functions.
+- Add profiling test
 
-* Update README links.
+- Improve docs and tests
 
+- ITU-T --> ITU-R
 
-## v0.1.3 (2022-03-14)
+- Code formatting and note
 
-* Add method to specify full range in read_container.
+- Minor code style
 
-* Link to development branch.
+- Update README links
 
-* Update docs.
+- Merge branch 'siti2020'
 
+- CI: support only Python 3.8 and higher
 
-## v0.1.2 (2021-05-14)
+- Check for pypandoc on release
 
-* Add documentation for method.
+- Bump version to 0.2.0.
 
-* Fix link.
+## [0.1.3] - 2022-03-14
 
-* Update README.md.
+### Other
 
-* Update README.md.
+- Update docs
 
-* Output frame data as integers.
+- Link to development branch
 
+- Add method to specify full range in read_container
 
-## v0.1.1 (2021-05-13)
+- Bump version to 0.1.3.
 
-* Add warning for full range passed to limited range function, fixes #2.
+## [0.1.2] - 2021-05-14
 
-* Add new test video, improve test harness.
+### Bug Fixes
 
+- Fix link
 
-## v0.1.0 (2021-03-08)
 
-* Add status badge.
+### Other
 
-* Bump Python support.
+- Output frame data as integers
 
-* Add GitHub Actions CI (#1)
+- Update README.md
 
-* Fix flake8 errors.
+- Update README.md
 
+- Add documentation for method
 
-## v0.0.2 (2021-03-08)
+- Bump version to 0.1.2
 
-* Fix setup.py.
+## [0.1.1] - 2021-05-13
 
-* Add CHANGELOG.
+### Other
 
+- Add new test video, improve test harness
 
-## v0.0.1 (2021-03-08)
+- Add warning for full range passed to limited range function, fixes #2
 
-* Improve README.
+- Bump version to 0.1.1
 
-* Initial commit.
+## [0.1.0] - 2021-03-08
 
-* Initial commit.
+### Bug Fixes
 
+- Fix flake8 errors
+
+
+### Other
+
+- Add GitHub Actions CI (#1)
+
+- Bump Python support
+
+- Add status badge
+
+- Bump version to 0.1.0.
+
+## [0.0.2] - 2021-03-08
+
+### Bug Fixes
+
+- Fix setup.py
+
+
+### Other
+
+- Add CHANGELOG
+
+- Bump version to 0.0.2.
+
+## [0.0.1] - 2021-03-08
+
+### Other
+
+- Initial commit
+
+- Initial commit
+
+- Improve README
 

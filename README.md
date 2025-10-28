@@ -12,6 +12,8 @@ Contents:
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+  - [Using uv (recommended)](#using-uv-recommended)
+  - [Using pip](#using-pip)
 - [Usage](#usage)
   - [Command Line Usage](#command-line-usage)
   - [Detailed Options](#detailed-options)
@@ -44,16 +46,26 @@ Under macOS, it is recommended to install ffmpeg via [Homebrew](https://brew.sh)
 
 ## Installation
 
-Directly install from Git:
+### Using uv (recommended)
+
+Install [uv](https://docs.astral.sh/uv/) and then:
 
 ```bash
-pip3 install --user git+https://github.com/VQEG/siti-tools
+uvx siti-tools
 ```
 
-Or clone this repository and then:
+Or clone this repository and install locally:
 
 ```bash
-pip3 install --user .
+git clone https://github.com/VQEG/siti-tools
+cd siti-tools
+uv run siti-tools
+```
+
+### Using pip
+
+```bash
+pip install siti-tools
 ```
 
 ## Usage
@@ -64,7 +76,7 @@ This tool can be used via command line or through a Python API.
 
 After installation, simply run:
 
-```
+```bash
 siti-tools /path/to/input/file.mp4
 ```
 
@@ -104,13 +116,13 @@ ffmpeg -i input.mp4 -pix_fmt yuv420p output.y4m
 
 To deal with input with more than 8-bit, you can choose the bit depth:
 
-```
+```bash
 siti-tools /path/to/input/file.mov --bit-depth 10
 ```
 
 To check if your input really has 10 bit, you can use `ffprobe`:
 
-```
+```bash
 ffprobe -v error -select_streams v:0 -show_streams test/videos/ParkJoy_480x270_50.y4m -of compact=p=0:nk=1 -show_entries stream=pix_fmt
 ```
 
@@ -120,7 +132,7 @@ If the pixel format ends with `p10`, you have a 10-bit sequence.
 
 If your input has full range values (0–255) instead of limited range (16–235), you must specify the following flag:
 
-```
+```bash
 siti-tools /path/to/input/file.mp4 --color-range full
 ```
 
@@ -130,13 +142,13 @@ This ensures that the values are properly scaled. If you pass a full range conte
 
 This tool handles HDR content encoded in HLG or HDR10. For example, if you have a HLG-encoded file with 10 bit per channel, you should call:
 
-```
+```bash
 siti-tools /path/to/input/file-HLG.mov --hdr-mode hlg --bit-depth 10
 ```
 
 Likewise, if you have an HDR10-encoded file:
 
-```
+```bash
 siti-tools /path/to/input/file-HDR10.mp4 --hdr-mode hdr10 --bit-depth 10
 ```
 
@@ -148,47 +160,50 @@ Run `siti-tools -h` for a full list of command line options:
 
 ```
 usage: siti-tools [-h] [-s SETTINGS] [-n NUM_FRAMES] [--max-frames MAX_FRAMES] [-f {json,csv}] [-v]
-                  [--show-histogram] [-q] [-c {pq,pu21}] [-m {sdr,hdr10,hlg}] [-b {8,10,12}]
-                  [-r {limited,full}] [--legacy] [-e {bt1886,inv_srgb}] [-g GAMMA] [--l-max L_MAX]
-                  [--l-min L_MIN] [--pu21-mode {banding,banding_glare,peaks,peaks_glare}]
+                  [--show-histogram] [-q] [--version] [-c {pq,pu21}] [-m {sdr,hdr10,hlg}]
+                  [-b {8,10,12}] [-r {limited,full}] [--legacy] [-e {bt1886,inv_srgb}] [-g GAMMA]
+                  [--l-max L_MAX] [--l-min L_MIN]
+                  [--pu21-mode {banding,banding_glare,peaks,peaks_glare}]
                   input
 
-optional arguments:
+siti-tools v0.3.0
+
+options:
   -h, --help            show this help message and exit
 
 input/output:
   input                 Input file, can be Y4M or file in FFmpeg-readable container
-  -s SETTINGS, --settings SETTINGS
+  -s, --settings SETTINGS
                         Load settings from previous JSON results file instead of using CLI args
-  -n NUM_FRAMES, --num-frames NUM_FRAMES
+  -n, --num-frames NUM_FRAMES
                         Number of frames to calculate, must be >= 2 (default: unlimited)
   --max-frames MAX_FRAMES
                         Overall number of frames, useful for providing better time estimates from
                         the command-line
-  -f {json,csv}, --format {json,csv}
+  -f, --format {json,csv}
                         Choose the output format (default: json)
   -v, --verbose         Show debug info on stderr (default: False)
   --show-histogram      Show a histogram for the first frame (computation-intensive, implies
                         --verbose) (default: False)
   -q, --quiet           Do not show progress bar (default: False)
+  --version             show program's version number and exit
 
 Video/SI options:
-  -c {pq,pu21}, --calculation-domain {pq,pu21}
+  -c, --calculation-domain {pq,pu21}
                         Select calculation domain (default: pq)
-  -m {sdr,hdr10,hlg}, --hdr-mode {sdr,hdr10,hlg}
+  -m, --hdr-mode {sdr,hdr10,hlg}
                         Select HDR mode (default: sdr)
-  -b {8,10,12}, --bit-depth {8,10,12}
+  -b, --bit-depth {8,10,12}
                         Select bit depth (default: 8)
-  -r {limited,full}, --color-range {limited,full}
+  -r, --color-range {limited,full}
                         Specify limited or full range (default: limited)
   --legacy              Use legacy mode, disables all other features except for range adjustment
                         (default: False)
 
 SDR options:
-  -e {bt1886,inv_srgb}, --eotf-function {bt1886,inv_srgb}
+  -e, --eotf-function {bt1886,inv_srgb}
                         Specify the EOTF function for converting SDR to HDR (default: bt1886)
-  -g GAMMA, --gamma GAMMA
-                        Specify gamma for BT.1886 function (default: 2.4)
+  -g, --gamma GAMMA     Specify gamma for BT.1886 function (default: 2.4)
 
 Display options:
   --l-max L_MAX         Nominal peak luminance of the display in cd/m2 for achromatic pixels
@@ -240,7 +255,7 @@ Note that the first frame has no TI value by definition, so a file with two fram
 
 In the `settings` key, you will find information on how the calculation was done. This is useful for allowing values to be reproduced. You can use these settings for further calculation runs. For instance, if you want to use the settings used for `input1` for `input2`, run the following:
 
-```
+```bash
 siti-tools input1.mp4 > input1.json
 siti-tools input2.mp4 --settings input1.json > input2.json
 ```
@@ -316,31 +331,11 @@ results = si_ti_calculator.get_results()
 print(json.dumps(results, indent=4))
 ```
 
-See the `siti_tools/__main__.py` file on how to specify all options.
+See the `src/siti_tools/__main__.py` file on how to specify all options.
 
 ## Testing
 
-This repo provides a set of test sequences with expected output values that you can verify against.
-
-First, install the dev dependencies:
-
-```
-pip3 install -r requirements.dev.txt
-```
-
-Generate the sequences:
-
-```bash
-cd test && ./generate_ffmpeg_sources.sh && cd -
-```
-
-Then run:
-
-```bash
-python3 -m pytest test/test.py -n auto
-```
-
-The `-n auto` flag distributes the test to all cores. Remove it if you want to capture stdout with `-s`.
+See [DEVELOPERS.md](DEVELOPERS.md) for instructions on how to run the tests.
 
 ## About
 
