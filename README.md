@@ -258,9 +258,32 @@ Note that the first frame has no TI value by definition, so a file with two fram
         "legacy": false,
         "version": "0.1.2"
     },
-    "input_file": "FourPeople_480x270_60.y4m"
+    "input_file": "FourPeople_480x270_60.y4m",
+    "aggregated_statistics": {
+        "si": {
+            "min": 4.678114135021466,
+            "max": 4.690539260164495,
+            "mean": 4.684326697592981,
+            "median": 4.684326697592981
+        },
+        "ti": {
+            "min": 0.33096454208633247,
+            "max": 0.33096454208633247,
+            "mean": 0.33096454208633247,
+            "median": 0.33096454208633247
+        }
+    }
 }
 ```
+
+The `aggregated_statistics` key contains summary statistics for the SI and TI values across all frames:
+
+- `min`: Minimum value
+- `max`: Maximum value
+- `mean`: Average value
+- `median`: Median value
+
+These statistics are only included in JSON output, not in CSV format.
 
 In the `settings` key, you will find information on how the calculation was done. This is useful for allowing values to be reproduced. You can use these settings for further calculation runs. For instance, if you want to use the settings used for `input1` for `input2`, run the following:
 
@@ -338,6 +361,11 @@ si_ti_calculator.calculate(
 results = si_ti_calculator.get_results()
 
 print(json.dumps(results, indent=4))
+
+# Access aggregated statistics
+stats = results["aggregated_statistics"]
+print(f"Average SI: {stats['si']['mean']}")
+print(f"Average TI: {stats['ti']['mean']}")
 ```
 
 See the `src/siti_tools/__main__.py` file on how to specify all options.

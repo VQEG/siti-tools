@@ -712,12 +712,43 @@ class SiTiCalculator:
             )
         return output.getvalue()
 
+    def get_statistics(self) -> Dict:
+        """
+        Calculate statistics (min, max, median, average) for SI and TI values.
+
+        NaN values are ignored in the calculation using numpy's NaN-aware functions.
+
+        Returns:
+            dict: A dictionary containing statistics for SI and TI.
+        """
+        stats = {}
+
+        if self.si_values:
+            si_array = np.array(self.si_values)
+            stats["si"] = {
+                "min": float(np.nanmin(si_array)),
+                "max": float(np.nanmax(si_array)),
+                "mean": float(np.nanmean(si_array)),
+                "median": float(np.nanmedian(si_array)),
+            }
+
+        if self.ti_values:
+            ti_array = np.array(self.ti_values)
+            stats["ti"] = {
+                "min": float(np.nanmin(ti_array)),
+                "max": float(np.nanmax(ti_array)),
+                "mean": float(np.nanmean(ti_array)),
+                "median": float(np.nanmedian(ti_array)),
+            }
+
+        return stats
+
     def get_results(self) -> Dict:
         """
         Get a JSON-serializable result dictionary with SI, TI values, as well as used settings.
 
         Returns:
-            dict: A dictionary containing "si", "ti" arrays, "settings" as a dict, and the "input_file" name.
+            dict: A dictionary containing "si", "ti" arrays, "settings" as a dict, "input_file" name, and "aggregated_statistics" with min/max/mean/median.
         """
         return {
             "si": self.si_values,
@@ -726,6 +757,7 @@ class SiTiCalculator:
             "input_file": os.path.basename(self.last_input_file)
             if self.last_input_file is not None
             else "",
+            "aggregated_statistics": self.get_statistics(),
         }
 
     def _log_frame_data(self, frame_data: np.ndarray):
