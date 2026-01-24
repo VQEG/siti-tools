@@ -15,11 +15,11 @@ authors = [
 license = "MIT"
 requires-python = ">=3.10.1"
 dependencies = [
-    "scipy>=1.11.0,<1.17",
-    "numpy~=2.2.0",
-    "av~=14.4.0",
-    "tqdm~=4.66.0",
-    "plotille~=5.0.0",
+    "scipy>=1.11.0",
+    "numpy>=2.0.0",
+    "av>=15.1.0",
+    "tqdm>=4.66.0",
+    "plotille>=5.0.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -44,9 +44,9 @@ siti-tools = "siti_tools.__main__:main"
 
 [dependency-groups]
 dev = [
-    "pytest>=8.0.0,<9",
-    "ruff~=0.9.0",
-    "pdoc~=14.0.0",
-    "requests~=2.32.0",
+    "pytest>=8.0.0",
+    "ruff>=0.9.0",
+    "pdoc>=14.0.0",
+    "requests>=2.32.0",
     "pytest-xdist>=3.6.0",
 ]
