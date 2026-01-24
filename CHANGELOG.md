@@ -1,3 +1,11 @@
+## [0.6.0] - 2026-01-24
+
+### Miscellaneous Tasks
+
+- Chore: update pyav for ffmpeg 8
+
+- Chore: bump version to 0.6.0
+
 ## [0.5.0] - 2025-10-28
 
 ### Features
