@@ -46,7 +46,8 @@ siti-tools = "siti_tools.__main__:main"
 dev = [
     "pytest>=8.0.0",
     "ruff>=0.9.0",
-    "pdoc>=14.0.0",
+    "pdoc>=14.5.1",
     "requests>=2.32.0",
+    "urllib3>=2.6.3",
     "pytest-xdist>=3.6.0",
 ]
